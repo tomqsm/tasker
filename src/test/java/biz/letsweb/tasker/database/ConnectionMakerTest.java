@@ -1,5 +1,6 @@
 package biz.letsweb.tasker.database;
 
+import biz.letsweb.tasker.PooledConnectionProduceable;
 import javax.sql.PooledConnection;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -35,11 +36,11 @@ public class ConnectionMakerTest {
     }
 
     /**
-     * Test of getPooledConnection method, of class ConnectionMaker.
+     * Test of getPooledConnection method, of class DerbyPooledConnectionProducer.
      */
     @Test
     public void testGetPooledConnection() {
-        ConnectionMaker instance = new ConnectionMaker(new DataSourceMaker().getClientConnectionPoolDataSource());
+        PooledConnectionProduceable instance = new DerbyPooledConnectionProducer(new DerbyPooledDataSourceMaker().getClientConnectionPoolDataSource());
         PooledConnection result = instance.getPooledConnection();
         assertThat(result).isNotNull();
     }

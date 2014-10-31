@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <config>
-    <database>
-        <username></username>
-        <password></password>
+<database>
+        <username/>
+        <password/>
     </database>
-    <properties>
+<properties>
         <color>blue</color>
         <logging>${log.level}</logging>
-        <time>519228237200171</time>
+        <time>1230</time>
     </properties>
 </config>

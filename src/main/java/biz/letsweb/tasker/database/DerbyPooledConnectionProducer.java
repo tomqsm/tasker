@@ -1,5 +1,6 @@
 package biz.letsweb.tasker.database;
 
+import biz.letsweb.tasker.PooledConnectionProduceable;
 import java.sql.SQLException;
 import javax.sql.PooledConnection;
 import org.apache.derby.jdbc.ClientConnectionPoolDataSource;
@@ -9,13 +10,13 @@ import org.apache.log4j.Logger;
  *
  * @author toks
  */
-public class ConnectionMaker {
+public class DerbyPooledConnectionProducer implements PooledConnectionProduceable{
 
-    public static final Logger log = Logger.getLogger(ConnectionMaker.class);
-    final private ClientConnectionPoolDataSource clientConnectionPoolDataSource;
+    public static final Logger log = Logger.getLogger(DerbyPooledConnectionProducer.class);
+    private final ClientConnectionPoolDataSource clientConnectionPoolDataSource;
     private PooledConnection pooledConnection;
 
-    public ConnectionMaker(ClientConnectionPoolDataSource clientConnectionPoolDataSource) {
+    public DerbyPooledConnectionProducer(ClientConnectionPoolDataSource clientConnectionPoolDataSource) {
         this.clientConnectionPoolDataSource = clientConnectionPoolDataSource;
         makePooledConnection();
     }
@@ -24,10 +25,11 @@ public class ConnectionMaker {
         try {
             pooledConnection = clientConnectionPoolDataSource.getPooledConnection();
         } catch (SQLException ex) {
-            log.error("App could not make connection object. ", ex);
+            log.error("Application could not make connection object.", ex);
         }
     }
 
+    @Override
     public PooledConnection getPooledConnection() {
         return pooledConnection;
     }

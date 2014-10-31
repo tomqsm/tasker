@@ -1,10 +1,11 @@
 package biz.letsweb.tasker;
 
-import biz.letsweb.tasker.database.ConnectionMaker;
-import biz.letsweb.tasker.database.DataSourceMaker;
+import biz.letsweb.tasker.database.DerbyPooledConnectionProducer;
+import biz.letsweb.tasker.database.DerbyPooledDataSourceMaker;
 import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.PooledConnection;
+import org.apache.derby.jdbc.ClientConnectionPoolDataSource;
 import org.apache.log4j.Logger;
 
 public class App {
@@ -13,10 +14,12 @@ public class App {
 
     public static void main(String[] args) {
         log.info("Hello info logger");
-        PooledConnection connections = new ConnectionMaker(new DataSourceMaker().getClientConnectionPoolDataSource()).getPooledConnection();
-        Connection con;
+        final DerbyPooledDataSourceMaker derbyPooledDataSourceMaker = new DerbyPooledDataSourceMaker();
+        final ClientConnectionPoolDataSource clientConnectionPoolDataSource = derbyPooledDataSourceMaker.getClientConnectionPoolDataSource();
+        final PooledConnectionProduceable pooledConnectionProduceable = new DerbyPooledConnectionProducer(clientConnectionPoolDataSource);
+        final PooledConnection connections = pooledConnectionProduceable.getPooledConnection();
         try {
-            con = connections.getConnection();
+            final Connection con = connections.getConnection();
             // do stuff
             con.close();
             connections.close();

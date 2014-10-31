@@ -6,16 +6,16 @@ import org.apache.derby.jdbc.ClientConnectionPoolDataSource;
  *
  * @author toks
  */
-public class DataSourceMaker {
+public class DerbyPooledDataSourceMaker {
 
     final ClientConnectionPoolDataSource clientConnectionPoolDataSource;
 
-    public DataSourceMaker(){
+    public DerbyPooledDataSourceMaker(){
         clientConnectionPoolDataSource = new ClientConnectionPoolDataSource();
         // Set the number of statements the cache is allowed to cache. Any number greater than zero will enable the cache.
         clientConnectionPoolDataSource.setMaxStatements(20);
         // Set other DataSource properties
-        clientConnectionPoolDataSource.setDatabaseName("mydb");
+        clientConnectionPoolDataSource.setDatabaseName("/Users/toks/databases/mydb");
         clientConnectionPoolDataSource.setCreateDatabase("create");
         clientConnectionPoolDataSource.setUser("tumcyk");
         clientConnectionPoolDataSource.setPassword("mypass");

@@ -42,11 +42,11 @@ public class DataSourceMakerTest {
     }
 
     /**
-     * Test of getClientConnectionPoolDataSource method, of class DataSourceMaker.
+     * Test of getClientConnectionPoolDataSource method, of class DerbyPooledDataSourceMaker.
      */
     @Test
     public void testGetClientConnectionPoolDataSource() {
-        DataSourceMaker instance = new DataSourceMaker();
+        DerbyPooledDataSourceMaker instance = new DerbyPooledDataSourceMaker();
         ClientConnectionPoolDataSource result = instance.getClientConnectionPoolDataSource();
         assertThat(result).isNotNull();
     }
