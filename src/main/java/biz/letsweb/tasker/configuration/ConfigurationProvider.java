@@ -1,4 +1,4 @@
-package biz.letsweb.tasker;
+package biz.letsweb.tasker.configuration;
 
 import java.io.File;
 import java.util.logging.Level;

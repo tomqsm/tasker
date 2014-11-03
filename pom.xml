@@ -9,7 +9,13 @@
 
     <name>Tasker</name>
     <url>http://maven.apache.org</url>
-
+    <developers>
+        <developer>
+            <id>toks</id>
+            <name>Tomasz Kuśmierczyk</name>
+            <email>tomqsm@yahoo.co.uk</email>
+        </developer>
+    </developers>
     <properties>
         <maven.build.timestamp.format>dd/MM/yyyy HH:mm</maven.build.timestamp.format>
         <date>${maven.build.timestamp}</date>

@@ -1,5 +1,6 @@
-package biz.letsweb.tasker;
+package biz.letsweb.tasker.configuration;
 
+import java.util.Date;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -71,7 +72,7 @@ public class ConfigurationProviderTest {
     public void savesConfigurationToFile() throws ConfigurationException {
         final XMLConfiguration xmlConfiguration = configurationProvider.getXMLConfiguration();
         final SubnodeConfiguration configurationAt = xmlConfiguration.configurationAt("properties");
-        configurationAt.setProperty("time", 1230);
+        configurationAt.setProperty("time", new Date());
         xmlConfiguration.save();
     }
 

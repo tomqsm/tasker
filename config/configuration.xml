@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <config>
     <database>
-        <username></username>
-        <password></password>
+        <user>${db.user}</user>
+        <password>${db.password}</password>
+        <databaseName>${db.databaseName}</databaseName>
+        <serverName>${db.serverName}</serverName>
+        <portNumber>${db.port}</portNumber>
+        <create>${db.create}</create>
     </database>
     <properties>
         <color>blue</color>
