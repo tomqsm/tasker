@@ -1,50 +1,53 @@
-DROP TABLE activityassociation;
-DROP TABLE activityproperty; -- must go before activity table to which has a foreign key
-DROP TABLE activity;
-CREATE TABLE activity (
-    activityid int generated always as identity (start with 1, increment by 1),
-    name varchar(100),
-    created TIMESTAMP,
-    constraint activityidpk primary key (activityid)
+drop TABLE assoc;
+drop table entity;
+drop table chronicle;
+
+CREATE TABLE entity (
+    id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT entity_pk PRIMARY KEY,
+    noun VARCHAR(100) DEFAULT NULL,
+    description VARCHAR(100) DEFAULT NULL,
+    inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE activityproperty (
-    activitypropertyid int generated always as identity (start with 1, increment by 1),
-    activityid int,
-    name varchar(100),
-    value varchar(255),
-    created TIMESTAMP,
-    constraint activitypropertyidpk primary key (activitypropertyid),
-    constraint activityfk foreign key (activityid) references activity(activityid)
+CREATE TABLE chronicle (
+    id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,
+    description VARCHAR(100) DEFAULT NULL,
+    inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE activityassociation (
-    activityassociationid int generated always as identity (start with 1, increment by 1),
-    activity1id int,
-    activity2id int,
-    created TIMESTAMP,
-    constraint activityassociationidpk primary key (activityassociationid),
-    constraint activity1fk foreign key (activity1id) references activity(activityid),
-    constraint activity2fk foreign key (activity2id) references activity(activityid)
+
+CREATE TABLE assoc (
+    id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT eta_pk PRIMARY KEY,
+    entity1Id INT NOT NULL,
+    entity2Id INT DEFAULT 0,
+    noun VARCHAR(100) DEFAULT NULL,
+    description VARCHAR(100) DEFAULT NULL,
+    inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT entity_fk FOREIGN KEY (entity1Id) REFERENCES entity (id),
+    CONSTRAINT propCh CHECK (entity2Id != entity1Id)
 );
-insert into activity values (default, 'project', current_timestamp);
-insert into activity values (default, 'story', current_timestamp);
-insert into activity values (default, 'task', current_timestamp);
-insert into activity values (default, 'problem', current_timestamp);
-insert into activity values (default, 'pause', current_timestamp);
 
+insert into entity (noun, description) values ('Randka', 'Widziałem się z Jolą, miała smutną twarz.');
+insert into entity (noun, description) values ('Restauracja', 'Restauracja Damiana');
+insert into entity (noun, description) values ('Miasto', 'Łódź');
+insert into entity (noun, description) values ('Ulica', '6 Sierpnia');
+insert into entity (noun, description) values ('Projekt', 'Robię stronę Łukasza');
+insert into entity (noun, description) values ('Story', 'Wdrażam logowanie');
+insert into entity (noun, description) values ('Task', 'Szukam danych na necia o logowaniu.');
+insert into entity (noun, description) values ('Break', 'Przerwa na kawę w kantynie.');
+insert into entity (noun, description) values ('Work', '');
+insert into assoc (entity1Id, entity2Id, noun, description) values (1, 2, 'social', 'randka - restauracje, ');
+insert into assoc (entity1Id, entity2Id, noun) values (2, 3, 'address');
+insert into assoc (entity1Id, entity2Id, noun) values (2, 4, 'address');
+insert into assoc (entity1Id, entity2Id) values (5, 6);
+insert into assoc (entity1Id, entity2Id) values (6, 7);
+insert into assoc (entity1Id, entity2Id) values (7, 8);
+insert into assoc (entity1Id, entity2Id) values (7, 9);
 
-insert into activityproperty values (default, 1, 'name', 'esg04',current_timestamp);
-insert into activityproperty values (default, 1, 'description', 'projekt SOA Oracle, BPEL',current_timestamp);
-insert into activityproperty values (default, 1, 'start', '25/03/2014',current_timestamp);
-insert into activityproperty values (default, 1, 'end', null, current_timestamp);
-insert into activityproperty values (default, 3, 'name', 'Bug fix: 138520', current_timestamp);
-insert into activityproperty values (default, 3, 'description', ' - Cash Out refund return error', current_timestamp);
-insert into activityproperty values (default, 4, 'connectivity', 'Something goes wrong with server connection.', current_timestamp);
-insert into activityproperty values (default, 4, 'placek fault fixed', 'Sławek fixed that.', current_timestamp);
+-- current is the last one
+-- entity has properties
+-- if property has property it becomes entity
+-- entities are whatever has entity1Id in assoc
 
-insert into ACTIVITYASSOCIATION values (default, 1, 2, current_timestamp);
-insert into ACTIVITYASSOCIATION values (default, 2, 3, current_timestamp);
-insert into ACTIVITYASSOCIATION values (default, 3, 4, current_timestamp);
-
-select * from activity o join activityproperty op on op.activityid=o.activityid;
-
-select * from ACTIVITYPROPERTY where "VALUE" like 'es%';
+select * from TEKA.ASSOC;
+select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2;
+select * from ENTITY en where en.ID in 
+(select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2);
