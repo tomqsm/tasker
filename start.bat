@@ -1,2 +1,2 @@
-java -Xmx64m -jar ${project.build.finalName}.${project.packaging}
+java -Xmx64m -jar ${project.build.finalName}.${project.packaging} -useConfig
 pause

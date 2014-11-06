@@ -13,30 +13,40 @@ import org.slf4j.LoggerFactory;
  */
 public class DerbyPooledDataSourceFactory {
 
-  public static final Logger log = LoggerFactory.getLogger(DerbyPooledDataSourceFactory.class);
+    public static final Logger log = LoggerFactory.getLogger(DerbyPooledDataSourceFactory.class);
 
-  final ConfigurationProvider configurationProvider = new ConfigurationProvider(
-      "config/configuration.xml");
-  final DerbyPooledDataSourceMaker derbyPooledDataSourceMaker = new DerbyPooledDataSourceMaker(
-      configurationProvider.getXMLConfiguration());
-  final ClientConnectionPoolDataSource clientConnectionPoolDataSource = derbyPooledDataSourceMaker
-      .getClientConnectionPoolDataSource();
-  private PooledConnection pooledConnection;
+    final ConfigurationProvider configurationProvider = new ConfigurationProvider(
+            "config/configuration.xml");
+    private DerbyPooledDataSourceMaker derbyPooledDataSourceMaker;
+    private ClientConnectionPoolDataSource clientConnectionPoolDataSource;
+    private PooledConnection pooledConnection;
 
-  public DerbyPooledDataSourceFactory() {
-    initializeConnections();
-  }
-
-  public PooledConnection getPooledConnection() {
-    return pooledConnection;
-  }
-
-  final public void initializeConnections() {
-    try {
-      pooledConnection = clientConnectionPoolDataSource.getPooledConnection();
-    } catch (SQLException ex) {
-      log.error("Error while initialising pooled connections.", ex);
+    public DerbyPooledDataSourceFactory() {
+        initializeConnections(false);
     }
-  }
+
+    public DerbyPooledDataSourceFactory(boolean useConfig) {
+        initializeConnections(useConfig);
+    }
+
+    public PooledConnection getPooledConnection() {
+        return pooledConnection;
+    }
+
+    final public void initializeConnections(boolean useConfig) {
+        if (useConfig) {
+            derbyPooledDataSourceMaker = new DerbyPooledDataSourceMaker(configurationProvider.getXMLConfiguration());
+        } else {
+            derbyPooledDataSourceMaker = new DerbyPooledDataSourceMaker();
+        }
+        clientConnectionPoolDataSource = derbyPooledDataSourceMaker.getClientConnectionPoolDataSource();
+        try {
+            pooledConnection = clientConnectionPoolDataSource.getPooledConnection();
+        } catch (SQLException ex) {
+            log.error("Error while initialising pooled connections.", ex);
+        }
+        clientConnectionPoolDataSource = derbyPooledDataSourceMaker
+            .getClientConnectionPoolDataSource();
+    }
 
 }

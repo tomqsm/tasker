@@ -10,7 +10,7 @@ import org.apache.derby.jdbc.ClientConnectionPoolDataSource;
  */
 public class DerbyPooledDataSourceMaker {
 
-  final ClientConnectionPoolDataSource clientConnectionPoolDataSource;
+  final private ClientConnectionPoolDataSource clientConnectionPoolDataSource;
 
   public DerbyPooledDataSourceMaker() {
     clientConnectionPoolDataSource = new ClientConnectionPoolDataSource();
@@ -18,7 +18,7 @@ public class DerbyPooledDataSourceMaker {
     // enable the cache.
     clientConnectionPoolDataSource.setMaxStatements(20);
     // Set other DataSource properties
-    clientConnectionPoolDataSource.setDatabaseName("/Users/Tomasz/databases/tekadb");
+    clientConnectionPoolDataSource.setDatabaseName("/Users/toks/databases/mydb");
     // clientConnectionPoolDataSource.setCreateDatabase("create");
     // clientConnectionPoolDataSource.setUser("tumcyk");
     // clientConnectionPoolDataSource.setPassword("mypass");
