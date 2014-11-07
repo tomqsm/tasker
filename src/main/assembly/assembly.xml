@@ -26,6 +26,11 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>przerwa.bat</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>config/configuration.xml</source>
             <outputDirectory>config</outputDirectory>
             <filtered>true</filtered>
