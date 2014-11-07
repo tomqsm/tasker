@@ -26,7 +26,17 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>przerwa.bat</source>
+            <source>break.bat</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>breakCoffe.bat</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>work.bat</source>
             <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
         </file>

@@ -28,7 +28,10 @@ public class App {
         options.addOption("useConfig", false, "type of entry");
         options.addOption("activity", true, "kind of task");
         final CommandLineParser parser = new BasicParser();
-        final String breakString = "przerwa";
+        final String breakString = "break";
+        final String breakCoffeString = "breakCoffe";
+        final String workString = "work";
+        final String showCurrentString = "showCurrent";
         final String activityOption = "activity";
         String activityString = "";
         CommandLine cmd = null;
@@ -50,10 +53,22 @@ public class App {
                 if (activityString.equalsIgnoreCase(breakString)) {
                     final String sql = "insert into teka.chronicle (description) values (?)";
                     ps = con.prepareStatement(sql);
-                    ps.setString(1, breakString);
+                    ps.setString(1, "przerwa");
                     ps.execute();
                     log.info("{} should run: {}", activityOption, activityString);
-                } else if (activityString.equalsIgnoreCase("display")) {
+                } else if (activityString.equalsIgnoreCase(breakCoffeString)) {
+                    final String sql = "insert into teka.chronicle (description) values (?)";
+                    ps = con.prepareStatement(sql);
+                    ps.setString(1, "przerwa na kawę");
+                    ps.execute();
+                    log.info("{} should run: {}", activityOption, activityString);
+                } else if (activityString.equalsIgnoreCase(workString)) {
+                    final String sql = "insert into teka.chronicle (description) values (?)";
+                    ps = con.prepareStatement(sql);
+                    ps.setString(1, "praca");
+                    ps.execute();
+                    log.info("{} should run: {}", activityOption, activityString);
+                } else if (activityString.equalsIgnoreCase(showCurrentString)) {
                     final String sql = "select * from teka.chronicle";
                     ps = con.prepareStatement(sql);
                     final ResultSet resultSet = ps.executeQuery();
