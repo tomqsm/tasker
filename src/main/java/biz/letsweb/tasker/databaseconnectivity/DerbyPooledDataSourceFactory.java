@@ -1,4 +1,4 @@
-package biz.letsweb.tasker.database;
+package biz.letsweb.tasker.databaseconnectivity;
 
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import java.sql.SQLException;

@@ -1,7 +1,10 @@
 package biz.letsweb.tasker;
 
-import biz.letsweb.tasker.database.DerbyPooledDataSourceFactory;
+import biz.letsweb.tasker.databaseconnectivity.DerbyPooledDataSourceFactory;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.services.InsertTagAndDescription;
+import biz.letsweb.tasker.services.FindCurrentEntryService;
+import biz.letsweb.tasker.services.Serviceable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -52,32 +55,36 @@ public class App {
         DerbyPooledDataSourceFactory dataSourceFactory = new DerbyPooledDataSourceFactory(useConfig);
         final PooledConnection pooledConnection = dataSourceFactory.getPooledConnection();
         if (cmd.hasOption(activityOption)) {
+
             String description = cmd.getOptionValue(desc);
             activityString = cmd.getOptionValue(activityOption);
             PreparedStatement ps = null;
             try {
                 final Connection con = pooledConnection.getConnection();
-                if (activityString.equalsIgnoreCase(breakString)) {
+                final Serviceable<ChronicleRecordLine> findCurrentEntryService = new FindCurrentEntryService();
+                findCurrentEntryService.execute(con);
+                ChronicleRecordLine currentEntry = findCurrentEntryService.getEntry();
+                Serviceable<ChronicleRecordLine> service = new InsertTagAndDescription();
+                ChronicleRecordLine entry = new ChronicleRecordLine();
+
+                if (activityString.equalsIgnoreCase(breakString) && !currentEntry.getTag().equalsIgnoreCase(breakString)) {
                     log.info("description: {}", cmd.getOptionValue(desc));
-                    final String sql = "insert into chronicle (tag, description) values (?, ?)";
-                    ps = con.prepareStatement(sql);
-                    ps.setString(1, "przerwa");
-                    ps.setString(2, description);
-                    ps.execute();
+                    entry.setTag(breakString);
+                    entry.setDescription(description);
+                    service.setEntry(entry);
+                    service.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(breakCoffeString)) {
-                    final String sql = "insert into chronicle (tag, description) values (?, ?)";
-                    ps = con.prepareStatement(sql);
-                    ps.setString(1, "przerwa na kawę");
-                    ps.setString(2, description);
-                    ps.execute();
+                    entry.setTag(breakCoffeString);
+                    entry.setDescription(description);
+                    service.setEntry(entry);
+                    service.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(workString)) {
-                    final String sql = "insert into chronicle (tag, description) values (?, ?)";
-                    ps = con.prepareStatement(sql);
-                    ps.setString(1, "praca");
-                    ps.setString(2, description);
-                    ps.execute();
+                    entry.setTag(workString);
+                    entry.setDescription(description);
+                    service.setEntry(entry);
+                    service.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(showCurrentString)) {
                     final String sql = "select * from chronicle";
@@ -87,20 +94,10 @@ public class App {
                         log.info("{}", resultSet.getString("tag"));
                     }
                 } else if (activityString.equalsIgnoreCase(durationOfCurrent)) {
-                    final String currentTaskSql = "select * from chronicle where id=(select max(id) from chronicle)";
-                    ps = con.prepareStatement(currentTaskSql);
-                    final ResultSet resultSet = ps.executeQuery();
-                    final ChronicleRecordLine chronicleRecordLine = new ChronicleRecordLine();
-                    while (resultSet.next()) {
-                        chronicleRecordLine.setId(resultSet.getInt("id"));
-                        chronicleRecordLine.setTag(resultSet.getString("tag"));
-                        chronicleRecordLine.setDescription(resultSet.getString("description"));
-                        chronicleRecordLine.setTimestamp(resultSet.getTimestamp("inserted"));
-                    }
-                    DateTime dateTimeFromTimestamp = new DateTime(chronicleRecordLine.getTimestamp());
+                    DateTime dateTimeFromTimestamp = new DateTime(currentEntry.getTimestamp());
                     DateTime dateTimeNow = new DateTime();
                     Duration duration = new Duration(dateTimeFromTimestamp, dateTimeNow);
-                    log.info("current: {}", chronicleRecordLine);
+                    log.info("current: {}", currentEntry);
                     log.info("chronicle timestamp: {}", dateTimeFromTimestamp);
                     log.info("chronicle minutes: {}", duration.getStandardMinutes());
 //                    final String sql = "select * from teka.chronicle";

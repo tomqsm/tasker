@@ -1,5 +1,6 @@
-package biz.letsweb.tasker.database;
+package biz.letsweb.tasker.databaseconnectivity;
 
+import biz.letsweb.tasker.databaseconnectivity.DerbyPooledDataSourceMaker;
 import org.apache.derby.jdbc.ClientConnectionPoolDataSource;
 import org.junit.After;
 import org.junit.AfterClass;

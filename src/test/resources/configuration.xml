@@ -7,6 +7,6 @@
 <properties>
         <color>blue</color>
         <logging>${log.level}</logging>
-        <time>Mon Nov 17 13:05:06 CET 2014</time>
+        <time>Mon Nov 17 17:16:59 CET 2014</time>
     </properties>
 </config>

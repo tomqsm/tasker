@@ -1,4 +1,4 @@
-package biz.letsweb.tasker.database;
+package biz.letsweb.tasker.databaseconnectivity;
 
 import org.apache.commons.configuration.SubnodeConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;

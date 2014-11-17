@@ -1,5 +1,6 @@
-package biz.letsweb.tasker.database;
+package biz.letsweb.tasker.databaseconnectivity;
 
+import biz.letsweb.tasker.databaseconnectivity.DerbyPooledDataSourceMaker;
 import java.sql.SQLException;
 import javax.sql.PooledConnection;
 import org.apache.derby.jdbc.ClientConnectionPoolDataSource;
