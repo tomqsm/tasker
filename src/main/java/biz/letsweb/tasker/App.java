@@ -64,27 +64,27 @@ public class App {
                 final Serviceable<ChronicleRecordLine> findCurrentEntryService = new FindCurrentEntryService();
                 findCurrentEntryService.execute(con);
                 ChronicleRecordLine currentEntry = findCurrentEntryService.getEntry();
-                Serviceable<ChronicleRecordLine> service = new InsertTagAndDescription();
+                Serviceable<ChronicleRecordLine> insertTagAndDescriptionService = new InsertTagAndDescription();
                 ChronicleRecordLine entry = new ChronicleRecordLine();
 
                 if (activityString.equalsIgnoreCase(breakString) && !currentEntry.getTag().equalsIgnoreCase(breakString)) {
                     log.info("description: {}", cmd.getOptionValue(desc));
                     entry.setTag(breakString);
                     entry.setDescription(description);
-                    service.setEntry(entry);
-                    service.execute(con);
+                    insertTagAndDescriptionService.setEntry(entry);
+                    insertTagAndDescriptionService.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(breakCoffeString)) {
                     entry.setTag(breakCoffeString);
                     entry.setDescription(description);
-                    service.setEntry(entry);
-                    service.execute(con);
+                    insertTagAndDescriptionService.setEntry(entry);
+                    insertTagAndDescriptionService.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(workString)) {
                     entry.setTag(workString);
                     entry.setDescription(description);
-                    service.setEntry(entry);
-                    service.execute(con);
+                    insertTagAndDescriptionService.setEntry(entry);
+                    insertTagAndDescriptionService.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(showCurrentString)) {
                     final String sql = "select * from chronicle";
