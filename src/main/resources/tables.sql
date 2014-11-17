@@ -8,11 +8,21 @@ CREATE TABLE entity (
     description VARCHAR(100) DEFAULT NULL,
     inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- CREATE TABLE tag (
+--     id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT tag_pk PRIMARY KEY,
+--     tag VARCHAR(100) DEFAULT NULL,
+--     inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- );
+-- insert into tag (tag) values ('przerwa');
+
 CREATE TABLE chronicle (
     id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,
+    tag VARCHAR(100) DEFAULT NULL,
     description VARCHAR(100) DEFAULT NULL,
     inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+--     CONSTRAINT tag_fk FOREIGN KEY (tag) REFERENCES tag (id),
 );
+
 
 CREATE TABLE assoc (
     id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT eta_pk PRIMARY KEY,
@@ -47,7 +57,7 @@ insert into assoc (entity1Id, entity2Id) values (7, 9);
 -- if property has property it becomes entity
 -- entities are whatever has entity1Id in assoc
 
-select * from TEKA.ASSOC;
-select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2;
-select * from ENTITY en where en.ID in 
-(select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2);
+-- select * from TEKA.ASSOC;
+-- select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2;
+-- select * from ENTITY en where en.ID in 
+-- (select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2);

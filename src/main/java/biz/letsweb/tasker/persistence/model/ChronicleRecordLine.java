@@ -8,11 +8,13 @@ import java.sql.Timestamp;
  */
 public class ChronicleRecordLine {
     private int id;
+    private String tag;
     private String description;
     private Timestamp timestamp;
 
-    public ChronicleRecordLine(int id, String description, Timestamp timestamp) {
+    public ChronicleRecordLine(int id, String tag, String description, Timestamp timestamp) {
         this.id = id;
+        this.tag = tag;
         this.description = description;
         this.timestamp = timestamp;
     }
@@ -26,6 +28,14 @@ public class ChronicleRecordLine {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getTag() {
+        return tag;
     }
 
     public String getDescription() {
@@ -43,5 +53,9 @@ public class ChronicleRecordLine {
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
-    
+
+    @Override
+    public String toString() {
+        return "ChronicleRecordLine{" + "id=" + id + ", tag=" + tag + ", description=" + description + ", timestamp=" + timestamp + '}';
+    }
 }

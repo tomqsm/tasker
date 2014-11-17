@@ -31,7 +31,12 @@
             <filtered>true</filtered>
         </file>
         <file>
-            <source>breakCoffe.bat</source>
+            <source>coffe.bat</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>durationOfCurrent.bat</source>
             <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
         </file>
