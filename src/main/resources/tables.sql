@@ -61,3 +61,4 @@ insert into assoc (entity1Id, entity2Id) values (7, 9);
 -- select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2;
 -- select * from ENTITY en where en.ID in 
 -- (select ass.entity2Id from ENTITY en join ASSOC ass on en.ID=ass.ENTITY1ID where ass.ENTITY1ID=2);
+select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 1;
