@@ -167,6 +167,10 @@
                         <version>2.6.0-01</version>
                     </dependency>
                 </dependencies>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>groovy-eclipse-compiler</artifactId>

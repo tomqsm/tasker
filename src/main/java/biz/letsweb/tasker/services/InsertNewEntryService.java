@@ -12,14 +12,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author toks
  */
-public class InsertTagAndDescription implements Serviceable<ChronicleRecordLine> {
+public class InsertNewEntryService implements Serviceable<ChronicleRecordLine> {
 
-    private static final Logger log = LoggerFactory.getLogger(InsertTagAndDescription.class);
+    private static final Logger log = LoggerFactory.getLogger(InsertNewEntryService.class);
     private final static String sql = "insert into chronicle (tag, description) values (?, ?)";
 
     private final ChronicleRecordLine entry;
 
-    public InsertTagAndDescription() {
+    public InsertNewEntryService() {
         entry = new ChronicleRecordLine();
     }
 
@@ -38,12 +38,12 @@ public class InsertTagAndDescription implements Serviceable<ChronicleRecordLine>
     }
 
     @Override
-    public ChronicleRecordLine getEntry() {
+    public ChronicleRecordLine getData() {
         return entry;
     }
 
     @Override
-    public void setEntry(ChronicleRecordLine entry) {
+    public void setData(ChronicleRecordLine entry) {
         new ChronicleRecordLineCopier().copyEntry(entry, this.entry);
     }
 

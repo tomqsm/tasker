@@ -14,6 +14,6 @@ public interface Serviceable <T> {
      * @param con
      */
     void execute(Connection con);
-    T getEntry();
-    void setEntry(T entry);
+    T getData();
+    void setData(T entry);
 }

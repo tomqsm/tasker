@@ -2,13 +2,16 @@ package biz.letsweb.tasker;
 
 import biz.letsweb.tasker.databaseconnectivity.DerbyPooledDataSourceFactory;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
-import biz.letsweb.tasker.services.InsertTagAndDescription;
+import biz.letsweb.tasker.services.InsertNewEntryService;
 import biz.letsweb.tasker.services.FindCurrentEntryService;
+import biz.letsweb.tasker.services.FindLastNEntriesService;
+import biz.letsweb.tasker.services.FindPreviousEntryService;
 import biz.letsweb.tasker.services.Serviceable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import javax.sql.PooledConnection;
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -40,6 +43,7 @@ public class App {
         final String workString = "work";
         final String showCurrentString = "showCurrent";
         final String durationOfCurrent = "durationOfCurrent";
+        final String durationOfPrevious = "durationOfPrevious";
         final String activityOption = "activity";
         final String desc = "desc";
         String activityString = "";
@@ -63,28 +67,28 @@ public class App {
                 final Connection con = pooledConnection.getConnection();
                 final Serviceable<ChronicleRecordLine> findCurrentEntryService = new FindCurrentEntryService();
                 findCurrentEntryService.execute(con);
-                ChronicleRecordLine currentEntry = findCurrentEntryService.getEntry();
-                Serviceable<ChronicleRecordLine> insertTagAndDescriptionService = new InsertTagAndDescription();
+                ChronicleRecordLine currentEntry = findCurrentEntryService.getData();
+                Serviceable<ChronicleRecordLine> insertNewEntryService = new InsertNewEntryService();
                 ChronicleRecordLine entry = new ChronicleRecordLine();
 
-                if (activityString.equalsIgnoreCase(breakString) && !currentEntry.getTag().equalsIgnoreCase(breakString)) {
+                if (activityString.equalsIgnoreCase(breakString)) {
                     log.info("description: {}", cmd.getOptionValue(desc));
                     entry.setTag(breakString);
                     entry.setDescription(description);
-                    insertTagAndDescriptionService.setEntry(entry);
-                    insertTagAndDescriptionService.execute(con);
+                    insertNewEntryService.setData(entry);
+                    insertNewEntryService.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(breakCoffeString)) {
                     entry.setTag(breakCoffeString);
                     entry.setDescription(description);
-                    insertTagAndDescriptionService.setEntry(entry);
-                    insertTagAndDescriptionService.execute(con);
+                    insertNewEntryService.setData(entry);
+                    insertNewEntryService.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(workString)) {
                     entry.setTag(workString);
                     entry.setDescription(description);
-                    insertTagAndDescriptionService.setEntry(entry);
-                    insertTagAndDescriptionService.execute(con);
+                    insertNewEntryService.setData(entry);
+                    insertNewEntryService.execute(con);
                     log.info("{} should run: {}", activityOption, activityString);
                 } else if (activityString.equalsIgnoreCase(showCurrentString)) {
                     final String sql = "select * from chronicle";
@@ -93,19 +97,20 @@ public class App {
                     while (resultSet.next()) {
                         log.info("{}", resultSet.getString("tag"));
                     }
+                } else if (activityString.equalsIgnoreCase(durationOfPrevious)) {
+                    Serviceable<ChronicleRecordLine> dataService = new FindPreviousEntryService();
+                    dataService.execute(con);
+                    final ChronicleRecordLine previousLine = dataService.getData();
+                    DateTime dateTimeOfCurrent = new DateTime(currentEntry.getTimestamp());
+                    DateTime dateTimeOfPrevious = new DateTime(previousLine.getTimestamp());
+                    Duration duration = new Duration(dateTimeOfPrevious, dateTimeOfCurrent);
+                    log.info("previous: {} {} {}", previousLine.getTag(), previousLine.getDescription(), duration.getStandardMinutes());
+                    log.info("content: {}", previousLine);
                 } else if (activityString.equalsIgnoreCase(durationOfCurrent)) {
-                    DateTime dateTimeFromTimestamp = new DateTime(currentEntry.getTimestamp());
+                    DateTime dateTimeOfCurrent = new DateTime(currentEntry.getTimestamp());
                     DateTime dateTimeNow = new DateTime();
-                    Duration duration = new Duration(dateTimeFromTimestamp, dateTimeNow);
-                    log.info("current: {}", currentEntry);
-                    log.info("chronicle timestamp: {}", dateTimeFromTimestamp);
-                    log.info("chronicle minutes: {}", duration.getStandardMinutes());
-//                    final String sql = "select * from teka.chronicle";
-//                    ps = con.prepareStatement(sql);
-//                    final ResultSet resultSet = ps.executeQuery();
-//                    while (resultSet.next()) {
-//                        log.info("{}", resultSet.getString("description"));
-//                    }
+                    Duration duration = new Duration(dateTimeOfCurrent, dateTimeNow);
+                    log.info("\ncurrent: {} {} {} minutes", currentEntry.getTag(), currentEntry.getDescription(), duration.getStandardMinutes());
                 }
 
                 if (ps != null) {

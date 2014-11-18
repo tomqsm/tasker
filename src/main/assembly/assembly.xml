@@ -41,6 +41,11 @@
             <filtered>true</filtered>
         </file>
         <file>
+            <source>durationOfPrevious.bat</source>
+            <outputDirectory>/</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
             <source>work.bat</source>
             <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
