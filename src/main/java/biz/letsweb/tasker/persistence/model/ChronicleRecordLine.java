@@ -13,8 +13,9 @@ public class ChronicleRecordLine {
     private String description;
     private Timestamp timestamp;
 
-    public ChronicleRecordLine(int id, String tag, String description, Timestamp timestamp) {
+    public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp) {
         this.id = id;
+        this.count = count;
         this.tag = tag;
         this.description = description;
         this.timestamp = timestamp;

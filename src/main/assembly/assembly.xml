@@ -13,40 +13,18 @@
                 <include>*.jar</include>
             </includes>
         </fileSet>
+        <fileSet>
+            <!--<directory>${project.build.directory}</directory>-->
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.bat</include>
+            </includes>
+            <filtered>true</filtered>
+        </fileSet>
     </fileSets>
     <files>
         <file>
             <source>README.txt</source>
-            <outputDirectory>/</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>start.bat</source>
-            <outputDirectory>/</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>break.bat</source>
-            <outputDirectory>/</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>coffe.bat</source>
-            <outputDirectory>/</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>durationOfCurrent.bat</source>
-            <outputDirectory>/</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>durationOfPrevious.bat</source>
-            <outputDirectory>/</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-        <file>
-            <source>work.bat</source>
             <outputDirectory>/</outputDirectory>
             <filtered>true</filtered>
         </file>
