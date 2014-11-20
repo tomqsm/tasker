@@ -20,7 +20,7 @@
         <maven.build.timestamp.format>dd/MM/yyyy HH:mm</maven.build.timestamp.format>
         <date>${maven.build.timestamp}</date>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.test.skip>false</maven.test.skip>
+        <maven.test.skip>true</maven.test.skip>
         <classpath.prefix>lib</classpath.prefix>
         <main.class>biz.letsweb.tasker.App</main.class>
     </properties>

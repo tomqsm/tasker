@@ -55,11 +55,9 @@ public class SequencePickerTest {
         list.add(line4);
         list.add(line5);
         String key = "work";
-        SequencePicker instance = new SequencePicker();
-        List<ChronicleRecordLine> result = instance.pickSequenceByCount(list, key);
-        assertThat(result.toString()).contains("bla");
-//        assertThat(result).hasSize(3);
-
+        ChronicleSequenceGrouper instance = new ChronicleSequenceGrouper();
+        List<ChronicleRecordLine> result = instance.getGroupRearEntry(list);
+        assertThat(result).hasSize(3);
     }
 
 }

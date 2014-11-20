@@ -27,12 +27,33 @@ public class ChronicleLineDao {
 
     public ChronicleRecordLine findLastRecord() {
         final ChronicleRecordLine record = new ChronicleRecordLine();
-        final String currentSql = "select * from chronicle where id=(select max(id) from chronicle)";
+        final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where id=(select max(id) from chronicle)";
         try (Connection con = pooledConnection.getConnection();
                 PreparedStatement ps = con.prepareStatement(currentSql);
                 ResultSet currentResultSet = ps.executeQuery();) {
             while (currentResultSet.next()) {
                 record.setId(currentResultSet.getInt("id"));
+                record.setCount(currentResultSet.getInt("cnt"));
+                record.setTag(currentResultSet.getString("tag"));
+                record.setDescription(currentResultSet.getString("description"));
+                record.setTimestamp(currentResultSet.getTimestamp("inserted"));
+            }
+        } catch (SQLException ex) {
+            log.error("Application couldn't get a connection from the pool. ", ex);
+        }
+        return record;
+    }
+
+    public ChronicleRecordLine findRecordByCount(int cnt) {
+        final ChronicleRecordLine record = new ChronicleRecordLine();
+        final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT = ?";
+        try (Connection con = pooledConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(currentSql);
+                ResultSet currentResultSet = ps.executeQuery();) {
+            ps.setInt(1, cnt);
+            while (currentResultSet.next()) {
+                record.setId(currentResultSet.getInt("id"));
+                record.setCount(currentResultSet.getInt("cnt"));
                 record.setTag(currentResultSet.getString("tag"));
                 record.setDescription(currentResultSet.getString("description"));
                 record.setTimestamp(currentResultSet.getTimestamp("inserted"));
@@ -106,7 +127,7 @@ public class ChronicleLineDao {
     public List<ChronicleRecordLine> findTodaysRecords() {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
-        final String sql = String.format("select * from chronicle where inserted between '%s' and '%s'",
+        final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '%s' and '%s'",
                 boundsTimestamp.getStartOfTodayTimestamp().toString(), boundsTimestamp.getEndOfTodayTimestamp().toString());
         log.info("{}", sql);
         try (Connection con = pooledConnection.getConnection();
@@ -115,6 +136,7 @@ public class ChronicleLineDao {
             while (rs.next()) {
                 final ChronicleRecordLine entry = new ChronicleRecordLine();
                 entry.setId(rs.getInt("id"));
+                entry.setCount(rs.getInt("cnt"));
                 entry.setTag(rs.getString("tag"));
                 entry.setDescription(rs.getString("description"));
                 entry.setTimestamp(rs.getTimestamp("inserted"));
@@ -126,7 +148,20 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public boolean insertNewRecord(ChronicleRecordLine recordLine) {
+    public int insertNewRecord(ChronicleRecordLine recordLine) {
+        int rowNr = 0;
+        try (Connection con = pooledConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement("insert into chronicle (tag, description) values (?, ?)");) {
+            ps.setString(1, recordLine.getTag());
+            ps.setString(2, recordLine.getDescription());
+            rowNr = ps.executeUpdate();
+        } catch (SQLException ex) {
+            log.error("Application couldn't get a connection from the pool. ", ex);
+        }
+        return rowNr;
+    }
+
+    public boolean insertNewComment(ChronicleRecordLine recordLine) {
         boolean isInserted = false;
         try (Connection con = pooledConnection.getConnection();
                 PreparedStatement ps = con.prepareStatement("insert into chronicle (tag, description) values (?, ?)");) {
