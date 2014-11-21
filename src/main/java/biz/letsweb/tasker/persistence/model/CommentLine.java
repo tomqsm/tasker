@@ -63,6 +63,11 @@ public class CommentLine {
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "CommentLine{" + "description=" + description + '}';
+    }
     
     
 }

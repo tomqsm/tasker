@@ -48,16 +48,17 @@ public class ChronicleLineDao {
         final ChronicleRecordLine record = new ChronicleRecordLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT = ?";
         try (Connection con = pooledConnection.getConnection();
-                PreparedStatement ps = con.prepareStatement(currentSql);
-                ResultSet currentResultSet = ps.executeQuery();) {
+                PreparedStatement ps = con.prepareStatement(currentSql);) {
             ps.setInt(1, cnt);
-            while (currentResultSet.next()) {
-                record.setId(currentResultSet.getInt("id"));
-                record.setCount(currentResultSet.getInt("cnt"));
-                record.setTag(currentResultSet.getString("tag"));
-                record.setDescription(currentResultSet.getString("description"));
-                record.setTimestamp(currentResultSet.getTimestamp("inserted"));
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                record.setId(rs.getInt("id"));
+                record.setCount(rs.getInt("cnt"));
+                record.setTag(rs.getString("tag"));
+                record.setDescription(rs.getString("description"));
+                record.setTimestamp(rs.getTimestamp("inserted"));
             }
+            rs.close();
         } catch (SQLException ex) {
             log.error("Application couldn't get a connection from the pool. ", ex);
         }
@@ -97,6 +98,65 @@ public class ChronicleLineDao {
                 currentEntry.setTimestamp(rs.getTimestamp("inserted"));
                 recordLines.add(currentEntry);
             }
+        } catch (SQLException ex) {
+            log.error("Application couldn't get a connection from the pool. ", ex);
+        }
+        return recordLines;
+    }
+
+    private int correctNRecordsDemand(int n) {
+        int allRecords = findRecordsCount();
+        int lackingDifference = allRecords - n;
+        if (lackingDifference < 0) {
+            n = n + lackingDifference;
+        }
+        return n;
+    }
+
+    public List<ChronicleRecordLine> findLastNRecords(int n) {
+        //find current task
+        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        n = correctNRecordsDemand(n);
+        try (Connection con = pooledConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT desc");) {
+            ps.setInt(1, n);
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                currentEntry.setId(rs.getInt("id"));
+                currentEntry.setCount(rs.getInt("cnt"));
+                currentEntry.setTag(rs.getString("tag"));
+                currentEntry.setDescription(rs.getString("description"));
+                currentEntry.setTimestamp(rs.getTimestamp("inserted"));
+                recordLines.add(currentEntry);
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            log.error("Application couldn't get a connection from the pool. ", ex);
+        }
+        return recordLines;
+    }
+
+    public List<ChronicleRecordLine> findLastNRecordsToday(int n) {
+        //find current task
+        final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
+        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        try (Connection con = pooledConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? and inserted between ? and ? order by CNT desc");) {
+            ps.setInt(1, n);
+            ps.setTimestamp(2, boundsTimestamp.getStartOfTodayTimestamp());
+            ps.setTimestamp(3, boundsTimestamp.getEndOfTodayTimestamp());
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                currentEntry.setId(rs.getInt("id"));
+                currentEntry.setCount(rs.getInt("cnt"));
+                currentEntry.setTag(rs.getString("tag"));
+                currentEntry.setDescription(rs.getString("description"));
+                currentEntry.setTimestamp(rs.getTimestamp("inserted"));
+                recordLines.add(currentEntry);
+            }
+            rs.close();
         } catch (SQLException ex) {
             log.error("Application couldn't get a connection from the pool. ", ex);
         }
@@ -148,6 +208,21 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
+    public int findRecordsCount() {
+        int count = -1;
+        final String sql = "select count(*) as cnt from chronicle";
+        try (Connection con = pooledConnection.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery();) {
+            while (rs.next()) {
+                count = rs.getInt("cnt");
+            }
+        } catch (SQLException ex) {
+            log.error("Application couldn't get a connection from the pool. ", ex);
+        }
+        return count;
+    }
+
     public int insertNewRecord(ChronicleRecordLine recordLine) {
         int rowNr = 0;
         try (Connection con = pooledConnection.getConnection();
@@ -159,19 +234,6 @@ public class ChronicleLineDao {
             log.error("Application couldn't get a connection from the pool. ", ex);
         }
         return rowNr;
-    }
-
-    public boolean insertNewComment(ChronicleRecordLine recordLine) {
-        boolean isInserted = false;
-        try (Connection con = pooledConnection.getConnection();
-                PreparedStatement ps = con.prepareStatement("insert into chronicle (tag, description) values (?, ?)");) {
-            ps.setString(1, recordLine.getTag());
-            ps.setString(2, recordLine.getDescription());
-            isInserted = ps.execute();
-        } catch (SQLException ex) {
-            log.error("Application couldn't get a connection from the pool. ", ex);
-        }
-        return isInserted;
     }
 
 }
