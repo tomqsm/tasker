@@ -88,4 +88,11 @@ public class ConsolePresenterTest {
     System.out.println(sums.get("work").getStandardMinutes());
   }
 
+  @Test
+  public void testThatItOrdersRecentSummativeDaily() {
+    final Map<String, Duration> sums =
+        presenter.displayDurationSummativePerTag(chronicleDao.findTodaysRecords());
+    System.out.println(sums.get("work").getStandardMinutes());
+  }
+
 }

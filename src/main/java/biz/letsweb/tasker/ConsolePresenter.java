@@ -37,27 +37,9 @@ public class ConsolePresenter {
     }
   }
 
-  public void displayDurationSummative(List<ChronicleRecordLine> lastNRecords) {
-    for (int i = 0; i < lastNRecords.size(); i++) {
-      Timestamp earlierTimestamp =
-          (i == 0 ? lastNRecords.get(i).getTimestamp() : lastNRecords.get(i).getTimestamp());
-      Timestamp laterTimestamp =
-          (i == (lastNRecords.size() - 1)
-              ? new Timestamp(System.currentTimeMillis())
-              : lastNRecords.get(i + 1).getTimestamp());
-      DateTime from = new DateTime(earlierTimestamp);
-      DateTime to = new DateTime(laterTimestamp);
-      Duration duration = new Duration(from, to);
-      String output =
-          String.format("#%d duration: %s %s %d minutes", lastNRecords.get(i).getCount(),
-              lastNRecords.get(i).getTag(), lastNRecords.get(i).getDescription(),
-              duration.getStandardMinutes());
-      System.out.println(output);
-    }
-  }
-
   public Map<String, Duration> displayDurationSummativePerTag(List<ChronicleRecordLine> allRecords) {
         Map<String, Duration> durations = new HashMap<>();
+
         for (int i = 0; i < allRecords.size(); i++) {
             Timestamp earlierTimestamp
                     = (i == 0 ? allRecords.get(i).getTimestamp() : allRecords.get(i).getTimestamp());

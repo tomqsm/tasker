@@ -3,8 +3,10 @@ package biz.letsweb.tasker;
 import biz.letsweb.tasker.databaseconnectivity.DerbyPooledDataSourceFactory;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import biz.letsweb.tasker.persistence.model.CommentLine;
+import biz.letsweb.tasker.persistence.model.ConsoleViewModel;
 import biz.letsweb.tasker.services.ChronicleLineDao;
 import biz.letsweb.tasker.services.CommentLineDao;
+import biz.letsweb.tasker.timecalculator.TimeCalaculator;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -160,7 +162,18 @@ public class App {
             log.info("{}", iterator.next());
           }
         } else if (activityString.equalsIgnoreCase(durationOfCurrent)) {
-          presenter.displayDurationOfNRecord(lastNRecords);
+          TimeCalaculator timeCalaculator = new TimeCalaculator();
+          final List<ConsoleViewModel> durationsPerTag =
+              timeCalaculator.getDurationsPerTag(chronicleLineDao.findTodaysRecords(), 3);
+          for (int i = 0; i < 3; i++) {
+            ConsoleViewModel view = durationsPerTag.get(i);
+            String printLine =
+                String.format("#%d %s %d/%d %s", view.getChronicleRecordLine().getCount(), view
+                    .getChronicleRecordLine().getTag(), view.getDuration().getStandardMinutes(),
+                    view.getTotalDuration().getStandardMinutes(), view.getChronicleRecordLine()
+                        .getDescription());
+            System.out.println(printLine);
+          }
         }
         pooledConnection.close();
       } catch (SQLException ex) {
