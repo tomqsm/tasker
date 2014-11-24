@@ -37,25 +37,28 @@ public class ConsolePresenter {
     }
   }
 
-  public Map<String, Duration> displayDurationSummativePerTag(List<ChronicleRecordLine> allRecords) {
-        Map<String, Duration> durations = new HashMap<>();
-
-        for (int i = 0; i < allRecords.size(); i++) {
+  public Map<String, Duration> displayDurationSummativePerTag(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
+      if(recordPool.isEmpty())  {
+          log.error("Record pool is empty.");
+          throw new NoRecordsInPoolException("No records in designated pool.");
+      }
+      Map<String, Duration> durations = new HashMap<>();
+        for (int i = 0; i < recordPool.size(); i++) {
             Timestamp earlierTimestamp
-                    = (i == 0 ? allRecords.get(i).getTimestamp() : allRecords.get(i).getTimestamp());
+                    = (i == 0 ? recordPool.get(i).getTimestamp() : recordPool.get(i).getTimestamp());
             Timestamp laterTimestamp
-                    = (i == (allRecords.size() - 1)
+                    = (i == (recordPool.size() - 1)
                     ? new Timestamp(System.currentTimeMillis())
-                    : allRecords.get(i + 1).getTimestamp());
+                    : recordPool.get(i + 1).getTimestamp());
             DateTime from = new DateTime(earlierTimestamp);
             DateTime to = new DateTime(laterTimestamp);
             Duration duration = new Duration(from, to);
-            if (durations.containsKey(allRecords.get(i).getTag())) {
-                Duration d = durations.get(allRecords.get(i).getTag());
+            if (durations.containsKey(recordPool.get(i).getTag())) {
+                Duration d = durations.get(recordPool.get(i).getTag());
                 d = d.plus(duration.getMillis());
-                durations.put(allRecords.get(i).getTag(), d);
+                durations.put(recordPool.get(i).getTag(), d);
             } else {
-                durations.put(allRecords.get(i).getTag(), duration);
+                durations.put(recordPool.get(i).getTag(), duration);
             }
         }
         return durations;

@@ -7,6 +7,10 @@
         <serverName>${db.serverName}</serverName>
         <portNumber>${db.port}</portNumber>
         <create>${db.create}</create>
+        <type>${db.type}</type>
+        <initializeTables>
+            CREATE TABLE chronicle (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,tag VARCHAR(50) DEFAULT NULL,description VARCHAR(400) DEFAULT NULL,inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+        </initializeTables>
     </database>
     <properties>
         <color>blue</color>

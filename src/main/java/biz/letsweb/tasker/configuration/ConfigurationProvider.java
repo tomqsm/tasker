@@ -18,6 +18,8 @@ public class ConfigurationProvider {
   public ConfigurationProvider() {
     config = new XMLConfiguration();
     config.setExpressionEngine(new XPathExpressionEngine());
+    config.setAttributeSplittingDisabled(true);
+    config.setDelimiterParsingDisabled(true);
   }
 
   public ConfigurationProvider(final String fileName) {

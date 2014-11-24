@@ -1,2 +1,4 @@
 /target/
 filter.properties
+/derby.log
+/testdb/

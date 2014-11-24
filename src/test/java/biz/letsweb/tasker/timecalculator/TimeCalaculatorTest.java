@@ -1,11 +1,10 @@
 package biz.letsweb.tasker.timecalculator;
 
-import biz.letsweb.tasker.databaseconnectivity.DerbyPooledDataSourceFactory;
+import biz.letsweb.tasker.databaseconnectivity.DataSourcePrepare;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import biz.letsweb.tasker.persistence.model.ConsoleViewModel;
 import biz.letsweb.tasker.services.ChronicleLineDao;
 import java.util.List;
-import javax.sql.PooledConnection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -23,9 +22,6 @@ public class TimeCalaculatorTest {
   public static final Logger log = LoggerFactory.getLogger(TimeCalaculatorTest.class);
 
   private ChronicleLineDao chronicleDao;
-  private final DerbyPooledDataSourceFactory pooledDataSourceFactory =
-      new DerbyPooledDataSourceFactory();
-  private final PooledConnection pooledConnection = pooledDataSourceFactory.getPooledConnection();
 
   public TimeCalaculatorTest() {}
 
@@ -37,7 +33,7 @@ public class TimeCalaculatorTest {
 
   @Before
   public void setUp() {
-    chronicleDao = new ChronicleLineDao(pooledConnection);
+    chronicleDao = new ChronicleLineDao(new DataSourcePrepare(DataSourcePrepare.Type.CLIENT).getDataSource());
   }
 
   @After
@@ -46,7 +42,7 @@ public class TimeCalaculatorTest {
   /**
    * Test of getDurationsPerTag method, of class TimeCalaculator.
    */
-  @Test
+//  @Test
   public void testGetDurationsPerTag() {
     List<ChronicleRecordLine> dailyPool = chronicleDao.findTodaysRecords();
     TimeCalaculator timeCalaculator = new TimeCalaculator();
