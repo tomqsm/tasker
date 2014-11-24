@@ -1,5 +1,6 @@
 package biz.letsweb.tasker;
 
+import biz.letsweb.tasker.databaseconnectivity.LocationCheckDb;
 import java.io.File;
 import org.apache.derby.iapi.services.io.FileUtil;
 
@@ -10,7 +11,7 @@ import org.apache.derby.iapi.services.io.FileUtil;
 public class DeleteDB {
 
     public boolean deleteDb() {
-        CheckDB checkDB = new CheckDB();
+        LocationCheckDb checkDB = new LocationCheckDb();
         boolean deleted = false;
         if(checkDB.dbDirectoryExists()){
             File dbDir = new File(checkDB.getDbPath());

@@ -1,8 +1,10 @@
 package biz.letsweb.tasker;
 
 import biz.letsweb.tasker.databaseconnectivity.DataSourcePrepare;
+import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import biz.letsweb.tasker.services.ChronicleLineDao;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import static org.fest.assertions.Assertions.assertThat;
@@ -11,7 +13,9 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  *
@@ -31,14 +35,15 @@ public class ConsolePresenterTest {
   @Before
   public void setUp() {
     presenter = new ConsolePresenter();
-    chronicleDao = new ChronicleLineDao(new DataSourcePrepare(DataSourcePrepare.Type.CLIENT).getDataSource());
+    chronicleDao =
+        new ChronicleLineDao(new DataSourcePrepare(DataSourcePrepare.Type.CLIENT).getDataSource());
   }
 
   @After
   public void tearDown() {}
 
-//  @Test
-  public void testSomeMethod() {
+  @Test
+  public void addsThreeRecordsAndFindsThenAsLastThree() throws NoRecordsInPoolException {
     int rowsAtStart = chronicleDao.findRecordsCount();
     ChronicleRecordLine line0 = new ChronicleRecordLine();
     line0.setTag("work0");
@@ -67,28 +72,33 @@ public class ConsolePresenterTest {
     assertThat(rowsAtStart).isEqualTo(rowsAtEnd);
   }
 
-//  @Test
-  public void testThatItOrdersRecentAtBottom() {
-    int rowsAtStart = chronicleDao.findRecordsCount();
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
+  @Test
+  public void whenRecordPoolIsEmptyExceptionsIsThrown() throws NoRecordsInPoolException,
+      SQLException {
+    InitializeDb initializeDb = new InitializeDb();
+    initializeDb.createTables();
+    initializeDb.clearTables();
+    thrown.expect(NoRecordsInPoolException.class);
     presenter.displayDurationOfNRecord(chronicleDao.findLastNRecords(5));
-
-    int rowsAtEnd = chronicleDao.findRecordsCount();
-    assertThat(rowsAtStart).isEqualTo(rowsAtEnd);
-  }
-
-//  @Test   
-  public void testThatItOrdersRecentSummative() throws NoRecordsInPoolException {
-    final Map<String, Duration> sums =
-        presenter.displayDurationSummativePerTag(chronicleDao.findAllRecords());
-    System.out.println(sums.get("work").getStandardMinutes());
   }
 
   @Test
-  public void testThatItOrdersRecentSummativeDaily() throws NoRecordsInPoolException {
+  public void testThatItOrdersRecentSummative() throws NoRecordsInPoolException, SQLException {
+    InitializeDb initializeDb = new InitializeDb();
+    initializeDb.createTables();
+    initializeDb.clearTables();
+    thrown.expect(NoRecordsInPoolException.class);
     final Map<String, Duration> sums =
-        presenter.displayDurationSummativePerTag(chronicleDao.findTodaysRecords());
-    System.out.println(sums.get("work").getStandardMinutes());
+        presenter.displayDurationSummativePerTag(chronicleDao.findAllRecords());
+  }
+
+  @Test
+  public void testThatItOrdersRecentSummativeDaily() throws NoRecordsInPoolException, SQLException {
+    ChronicleRecordLine line0 = new ChronicleRecordLine();
+    line0.setTag("work0");
   }
 
 }

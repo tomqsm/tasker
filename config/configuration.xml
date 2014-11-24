@@ -9,7 +9,10 @@
         <create>${db.create}</create>
         <type>${db.type}</type>
         <initializeTables>
-            CREATE TABLE chronicle (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,tag VARCHAR(50) DEFAULT NULL,description VARCHAR(400) DEFAULT NULL,inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP)
+            <initializeTable>CREATE TABLE chronicle (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,tag VARCHAR(50) DEFAULT NULL,description VARCHAR(400) DEFAULT NULL,inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP)</initializeTable>
+            <initializeTable>CREATE TABLE comment (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT comment_pk PRIMARY KEY, chronicleId INT, description VARCHAR(400) DEFAULT NULL, inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT chronicleId_fk FOREIGN KEY (chronicleId) REFERENCES chronicle (id))</initializeTable>
+            <clearTable>delete from comment</clearTable>
+            <clearTable>delete from chronicle</clearTable>
         </initializeTables>
     </database>
     <properties>

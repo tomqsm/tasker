@@ -18,7 +18,12 @@ public class ConsolePresenter {
 
   public static final Logger log = LoggerFactory.getLogger(ConsolePresenter.class);
 
-  public void displayDurationOfNRecord(List<ChronicleRecordLine> lastNRecords) {
+  public void displayDurationOfNRecord(List<ChronicleRecordLine> lastNRecords)
+      throws NoRecordsInPoolException {
+    if (lastNRecords.isEmpty()) {
+      log.error("Record pool is empty.");
+      throw new NoRecordsInPoolException("No records in designated pool.");
+    }
     for (int i = 0; i < lastNRecords.size(); i++) {
       Timestamp earlierTimestamp =
           (i == 0 ? lastNRecords.get(i).getTimestamp() : lastNRecords.get(i).getTimestamp());
@@ -38,11 +43,11 @@ public class ConsolePresenter {
   }
 
   public Map<String, Duration> displayDurationSummativePerTag(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
-      if(recordPool.isEmpty())  {
-          log.error("Record pool is empty.");
-          throw new NoRecordsInPoolException("No records in designated pool.");
-      }
-      Map<String, Duration> durations = new HashMap<>();
+        if (recordPool.isEmpty()) {
+            log.error("Record pool is empty.");
+            throw new NoRecordsInPoolException("No records in designated pool.");
+        }
+        Map<String, Duration> durations = new HashMap<>();
         for (int i = 0; i < recordPool.size(); i++) {
             Timestamp earlierTimestamp
                     = (i == 0 ? recordPool.get(i).getTimestamp() : recordPool.get(i).getTimestamp());

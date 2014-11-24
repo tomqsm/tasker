@@ -21,6 +21,10 @@ public class TimeCalaculator {
   public static final Logger log = LoggerFactory.getLogger(TimeCalaculator.class);
 
   public List<ConsoleViewModel> getDurationsPerTag(List<ChronicleRecordLine> recPool, int lines) {
+        if(recPool.isEmpty()){
+            log.error("No etries in the pool.");
+            System.exit(0);
+        }
         int size = recPool.size();
         Map<String, Duration> durations = new HashMap<>();
         List<ConsoleViewModel> viewModels = new ArrayList<>(size);

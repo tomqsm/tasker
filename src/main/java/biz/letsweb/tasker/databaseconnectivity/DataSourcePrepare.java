@@ -15,80 +15,81 @@ import org.slf4j.LoggerFactory;
  */
 public class DataSourcePrepare {
 
-    public static final Logger log = LoggerFactory.getLogger(DataSourcePrepare.class);
+  public static final Logger log = LoggerFactory.getLogger(DataSourcePrepare.class);
 
-    public static final File ROOT_FOLDER = new File("");
-    public static String DB_NAME = "testdb";
-    public static int PORT = 1527;
-    public String db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
-    public static String USER = "tumcyk";
-    public static String PASSWORD = "mypass";
-    public static String SERVER_NAME = "localhost";
-    public static boolean CREATE = true;
-    private DataSource dataSource;
+  public static final File ROOT_FOLDER = new File("");
+  public static String DB_NAME = "testdb";
+  public static int PORT = 1527;
+  public String db = String
+      .format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
+  public static String USER = "tumcyk";
+  public static String PASSWORD = "mypass";
+  public static String SERVER_NAME = "localhost";
+  public static boolean CREATE = true;
+  private DataSource dataSource;
 
-    public DataSourcePrepare(XMLConfiguration xmlConfiguration) {
-        final SubnodeConfiguration xmlConfig = xmlConfiguration.configurationAt("database");
-        USER = xmlConfig.getString("user");
-        PASSWORD = xmlConfig.getString("password");
-        DB_NAME = xmlConfig.getString("databaseName");
-        SERVER_NAME = xmlConfig.getString("serverName");
-        PORT = xmlConfig.getInt("portNumber");
-        CREATE = xmlConfig.getBoolean("create");
-        db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
-        final String type = xmlConfig.getString("type");
-        initialize(Type.valueOf(type));
+  public DataSourcePrepare(XMLConfiguration xmlConfiguration) {
+    final SubnodeConfiguration xmlConfig = xmlConfiguration.configurationAt("database");
+    USER = xmlConfig.getString("user");
+    PASSWORD = xmlConfig.getString("password");
+    DB_NAME = xmlConfig.getString("databaseName");
+    SERVER_NAME = xmlConfig.getString("serverName");
+    PORT = xmlConfig.getInt("portNumber");
+    CREATE = xmlConfig.getBoolean("create");
+    db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
+    final String type = xmlConfig.getString("type");
+    initialize(Type.valueOf(type));
+  }
+
+  public DataSourcePrepare(Type type) {
+    initialize(type);
+  }
+
+  private void initialize(Type type) {
+    if (type == Type.CLIENT) {
+      dataSource = initializeClient();
+    } else if (type == Type.EMBEDDED) {
+      dataSource = initializeEmbedded();
+    } else {
+
     }
+  }
 
-    public DataSourcePrepare(Type type) {
-        initialize(type);
+  private DataSource initializeEmbedded() {
+    EmbeddedDataSource ds = new EmbeddedDataSource();
+    ds.setDatabaseName(db);
+    if (CREATE) {
+      ds.setCreateDatabase("create");
     }
+    log.info("Initialized enbedded db in: {}", db);
+    return ds;
+  }
 
-    private void initialize(Type type) {
-        if (type == Type.CLIENT) {
-            dataSource = initializeClient();
-        } else if (type == Type.EMBEDDED) {
-            dataSource = initializeEmbedded();
-        } else {
-
-        }
+  private DataSource initializeClient() {
+    ClientDataSource ds = new ClientDataSource();
+    ds.setDatabaseName(db);
+    // ds.setUser(USER); //when uncommented it wants TUMCYK schema
+    // ds.setPassword(PASSWORD);
+    ds.setServerName(SERVER_NAME);
+    if (CREATE) {
+      ds.setCreateDatabase("create");
     }
-
-    private DataSource initializeEmbedded() {
-        EmbeddedDataSource ds = new EmbeddedDataSource();
-        ds.setDatabaseName(db);
-        if (CREATE) {
-            ds.setCreateDatabase("create");
-        }
-        log.info("Initialized enbedded db in: {}", db);
-        return ds;
-    }
-
-    private DataSource initializeClient() {
-        ClientDataSource ds = new ClientDataSource();
-        ds.setDatabaseName(db);
-//        ds.setUser(USER); //when uncommented it wants TUMCYK schema
-//        ds.setPassword(PASSWORD);
-        ds.setServerName(SERVER_NAME);
-        if (CREATE) {
-            ds.setCreateDatabase("create");
-        }
-        ds.setPortNumber(PORT);
-        log.info("Initialized client db in: {}", db);
-        return ds;
-    }
+    ds.setPortNumber(PORT);
+    log.info("Initialized client db in: {}", db);
+    return ds;
+  }
 
 
-    public DataSource getDataSource() {
-        return dataSource;
-    }
+  public DataSource getDataSource() {
+    return dataSource;
+  }
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+  public void setDataSource(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
 
-    public enum Type {
+  public enum Type {
 
-        CLIENT, EMBEDDED
-    }
+    CLIENT, EMBEDDED
+  }
 }
