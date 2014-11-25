@@ -1,7 +1,7 @@
 package biz.letsweb.tasker.timecalculator;
 
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
-import biz.letsweb.tasker.persistence.model.ConsoleViewModel;
+import biz.letsweb.tasker.model.ConsoleViewModel;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;

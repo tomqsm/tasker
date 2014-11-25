@@ -3,7 +3,7 @@ package biz.letsweb.tasker;
 import biz.letsweb.tasker.databaseconnectivity.DataSourcePrepare;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import biz.letsweb.tasker.persistence.model.CommentLine;
-import biz.letsweb.tasker.persistence.model.ConsoleViewModel;
+import biz.letsweb.tasker.model.ConsoleViewModel;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import biz.letsweb.tasker.persistence.dao.CommentLineDao;
 import biz.letsweb.tasker.timecalculator.TimeCalaculator;
