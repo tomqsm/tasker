@@ -1,4 +1,4 @@
-package biz.letsweb.tasker.services;
+package biz.letsweb.tasker.persistence.dao;
 
 import biz.letsweb.tasker.persistence.model.CommentLine;
 import biz.letsweb.tasker.timing.DayBoundsTimestamp;

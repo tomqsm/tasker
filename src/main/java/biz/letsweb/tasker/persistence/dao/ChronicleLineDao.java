@@ -1,4 +1,4 @@
-package biz.letsweb.tasker.services;
+package biz.letsweb.tasker.persistence.dao;
 
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.InitializeTables;
