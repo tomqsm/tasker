@@ -8,11 +8,13 @@ import freemarker.template.TemplateException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class Templating {
@@ -69,6 +71,11 @@ public class Templating {
 
     private void loadXmlData(final Map root, final File xml) throws SAXException, IOException, ParserConfigurationException {
         final NodeModel parsed = NodeModel.parse(xml);
+        root.put("xml", parsed);
+    }
+    private void loadData(final Map root, final InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
+        InputSource inputSource = new InputSource(inputStream);
+        final NodeModel parsed = NodeModel.parse(inputSource);
         root.put("xml", parsed);
     }
 

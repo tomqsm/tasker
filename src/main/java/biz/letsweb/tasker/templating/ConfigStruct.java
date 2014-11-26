@@ -10,7 +10,7 @@ public class ConfigStruct implements Cloneable{
 
     private File templateFile = new File("template.ftl");
     private File dataXmlFile = new File("src/main/resources/freemarker/withNspace/report.xml");
-    private File directoryForTemplateLoading = new File("src/main/resources/freemarker/withNspace/");
+    private File directoryForTemplateLoading = new File("src/main/resources/");
     private File output = new File("src/main/resources/freemarker/withNspace/output.txt");
 
     public File getTemplateFile() {
@@ -43,10 +43,5 @@ public class ConfigStruct implements Cloneable{
 
     public void setOutput(File output) {
         this.output = output;
-    }
-
-    @Override
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone(); 
     }
 }
