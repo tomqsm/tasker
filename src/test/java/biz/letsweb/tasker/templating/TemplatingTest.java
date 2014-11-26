@@ -98,22 +98,31 @@ public class TemplatingTest {
     @Test
     public void passingObjectToFreemarker() throws Exception {
         List<ConsoleViewModel> lines = new ArrayList<>();
-        ConsoleViewModel consoleViewModel = new ConsoleViewModel();
-        consoleViewModel.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
-        consoleViewModel.setDuration(Duration.ZERO);
-        consoleViewModel.setTotalDuration(Duration.ZERO);
-        lines.add(consoleViewModel);
+        ConsoleViewModel consoleViewModel0 = new ConsoleViewModel();
+        consoleViewModel0.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel0.setDuration(Duration.millis(System.currentTimeMillis()));
+        consoleViewModel0.setTotalDuration(Duration.ZERO);
+        ConsoleViewModel consoleViewModel1 = new ConsoleViewModel();
+        consoleViewModel1.setChronicleRecordLine(new ChronicleRecordLine(2, 2, "break", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel1.setDuration(Duration.millis(System.currentTimeMillis()));
+        consoleViewModel1.setTotalDuration(Duration.ZERO);
+        ConsoleViewModel consoleViewModel2 = new ConsoleViewModel();
+        consoleViewModel2.setChronicleRecordLine(new ChronicleRecordLine(3, 3, "work", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel2.setDuration(Duration.millis(System.currentTimeMillis()));
+        consoleViewModel2.setTotalDuration(Duration.ZERO);
+        lines.add(consoleViewModel0);
+        lines.add(consoleViewModel1);
+        lines.add(consoleViewModel2);
         File templateFolder = new File("src/test/resources");
         Configuration cfg = new Configuration();
         cfg.setDirectoryForTemplateLoading(templateFolder);
         cfg.setEncoding(new Locale("pl", "PL"), "UTF-8");
-        cfg.setObjectWrapper(new DefaultObjectWrapper());
+        cfg.setObjectWrapper(new DefaultObjectWrapper())    ;
         cfg.setDefaultEncoding("UTF-8");
         cfg.setOutputEncoding("UTF-8");
         BeansWrapper bw = new BeansWrapper();
         final Template template = cfg.getTemplate("template.ftl");
         Map<String, Object> root = new HashMap();
-        root.put("linez", bw.wrap(consoleViewModel));
         root.put("lines", lines);
         Writer out = new OutputStreamWriter(System.out);
         template.process(root, out);
