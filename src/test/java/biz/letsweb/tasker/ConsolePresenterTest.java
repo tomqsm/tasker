@@ -59,7 +59,7 @@ public class ConsolePresenterTest {
         chronicleDao.insertNewRecord(line1);
         chronicleDao.insertNewRecord(line2);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findNRecordsDescending(3);
+        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         line2 = last3Lines.get(0);
         line1 = last3Lines.get(1);
         line0 = last3Lines.get(2);
@@ -87,7 +87,7 @@ public class ConsolePresenterTest {
             initializeDb.clearTables();
         }
         thrown.expect(NoRecordsInPoolException.class);
-        presenter.displayDurationOfNRecord(chronicleDao.findLastNRecords(5));
+        presenter.displayDurationOfNRecord(chronicleDao.findLastNRecordsDownwards(5));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ConsolePresenterTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 3);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findNRecordsDescending(3);
+        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         line2 = last3Lines.get(0);
         line1 = last3Lines.get(1);
         line0 = last3Lines.get(2);

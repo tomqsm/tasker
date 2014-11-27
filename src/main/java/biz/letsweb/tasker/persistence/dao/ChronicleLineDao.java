@@ -1,5 +1,6 @@
 package biz.letsweb.tasker.persistence.dao;
 
+import biz.letsweb.tasker.NoRecordsInPoolException;
 import biz.letsweb.tasker.UnsetIdException;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.databaseconnectivity.TableNames;
@@ -33,13 +34,14 @@ public class ChronicleLineDao {
         this.ds = dataSource;
     }
 
-    public ChronicleRecordLine findLastRecord() {
-        final ChronicleRecordLine record = new ChronicleRecordLine();
+    public ChronicleRecordLine findLastRecord() throws NoRecordsInPoolException {
+        ChronicleRecordLine record = null;
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where id=(select max(id) from chronicle)";
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(currentSql);
                 ResultSet currentResultSet = ps.executeQuery();) {
             while (currentResultSet.next()) {
+                record = new ChronicleRecordLine();
                 record.setId(currentResultSet.getInt("id"));
                 record.setCount(currentResultSet.getInt("cnt"));
                 record.setTag(currentResultSet.getString("tag"));
@@ -48,6 +50,9 @@ public class ChronicleLineDao {
             }
         } catch (SQLException ex) {
             initializeTablesUponException(ex);
+        }
+        if (record == null) {
+            throw new NoRecordsInPoolException("Can't return 'last record' because no records in database.");
         }
         return record;
     }
@@ -112,19 +117,8 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    private int correctNRecordsDemand(int n) {
-        int allRecords = findRecordsCount();
-        int lackingDifference = allRecords - n;
-        if (lackingDifference < 0) {
-            n = n + lackingDifference;
-        }
-        return n;
-    }
-
-    public List<ChronicleRecordLine> findLastNRecords(int n) {
-        //find current task
+    public List<ChronicleRecordLine> findLastNRecordsDownwards(int n) {
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
-        n = correctNRecordsDemand(n);
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT asc");) {
             ps.setInt(1, n);
@@ -145,10 +139,8 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findNRecordsDescending(int n) {
-        //find current task
+    public List<ChronicleRecordLine> findLastNRecordsUpwards(int n) {
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
-        n = correctNRecordsDemand(n);
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT desc");) {
             ps.setInt(1, n);
@@ -169,8 +161,7 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findLastNRecordsToday(int n) {
-        //find current task
+    public List<ChronicleRecordLine> findLastNRecordsTodayUpwards(int n) {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
@@ -196,7 +187,6 @@ public class ChronicleLineDao {
     }
 
     public List<ChronicleRecordLine> findAllRecordsWithCount() {
-        //find current task
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR");

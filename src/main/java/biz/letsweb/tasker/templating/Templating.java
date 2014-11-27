@@ -1,45 +1,48 @@
 package biz.letsweb.tasker.templating;
 
-import freemarker.ext.dom.NodeModel;
 import freemarker.template.Configuration;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.InputSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 public class Templating {
 
-    private final File templateFile;
-    private final File dataXmlFile;
-    private final File directoryForTemplateLoading;
-    private final File output;
+    public static final Logger log = LoggerFactory.getLogger(Templating.class);
+
     private Template template;
     private final Map<String, Object> root;
-    private final ConfigStruct configStruct;
+    private final File templateFolder;
 
-    public Templating(final ConfigStruct configStruct) {
-        this.configStruct = configStruct;
-        templateFile = configStruct.getTemplateFile();
-        dataXmlFile = configStruct.getDataXmlFile();
-        directoryForTemplateLoading = configStruct.getDirectoryForTemplateLoading();
-        output = configStruct.getOutput();
+    public Templating() {
+        templateFolder = new File("src/test/resources");
         root = new HashMap();
         initializeTemplate();
     }
 
+    private void initializeTemplate() {
+        try {
+            final Configuration cfg = prepareTemplateConfiguration();
+            template = cfg.getTemplate("template.ftl");
+        } catch (final IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     private Configuration prepareTemplateConfiguration() throws IOException {
         Configuration cfg = new Configuration();
-        cfg.setDirectoryForTemplateLoading(directoryForTemplateLoading);
+        cfg.setDirectoryForTemplateLoading(templateFolder);
         cfg.setEncoding(new Locale("pl", "PL"), "UTF-8");
         cfg.setObjectWrapper(ObjectWrapper.DEFAULT_WRAPPER);
         cfg.setDefaultEncoding("UTF-8");
@@ -47,41 +50,21 @@ public class Templating {
         return cfg;
     }
 
-    private void initializeTemplate() {
-        try {
-            final Configuration cfg = prepareTemplateConfiguration();
-            template = cfg.getTemplate(templateFile.getName());
-        } catch (final IOException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
     public void parseTemplate() throws IOException, TemplateException, SAXException, ParserConfigurationException {
-        loadXmlData(root, dataXmlFile);
-        loadAnyData();
-        final FileWriter writer = new FileWriter(output);
-        template.process(root, writer);
-        writer.flush();
-        writer.close();
+        loadMetaParameters();
+        Writer out = new OutputStreamWriter(System.out);
+        template.process(root, out);
+        out.flush();
+        out.close();
     }
 
-    private void addParameter(final String key, final Object value) {
+    public void addParameter(final String key, final Object value) {
         root.put(key, value);
     }
 
-    private void loadXmlData(final Map root, final File xml) throws SAXException, IOException, ParserConfigurationException {
-        final NodeModel parsed = NodeModel.parse(xml);
-        root.put("xml", parsed);
-    }
-    private void loadData(final Map root, final InputStream inputStream) throws SAXException, IOException, ParserConfigurationException {
-        InputSource inputSource = new InputSource(inputStream);
-        final NodeModel parsed = NodeModel.parse(inputSource);
-        root.put("xml", parsed);
-    }
-
-    private void loadAnyData() {
+    private void loadMetaParameters() {
         addParameter("time", new Date());
         addParameter("currentWeek", "not set");
         addParameter("version", "123");
     }
-}   
+}
