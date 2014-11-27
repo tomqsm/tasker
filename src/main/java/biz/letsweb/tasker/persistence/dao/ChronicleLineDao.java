@@ -210,7 +210,7 @@ public class ChronicleLineDao {
                 recordLines.add(entry);
             }
         } catch (SQLException ex) {
-                        initializeTablesUponException(ex);
+            initializeTablesUponException(ex);
         }
         return recordLines;
     }
@@ -293,17 +293,27 @@ public class ChronicleLineDao {
                 count = rs.getInt("cnt");
             }
         } catch (SQLException ex) {
-            log.error("Application couldn't get a connection from the pool. ", ex);
+            initializeTablesUponException(ex);
         }
         return count;
     }
 
   public int insertNewRecord(ChronicleRecordLine recordLine) {
         int rowNr = 0;
+        String sql = "insert into chronicle (tag, description) values (?, ?)";
+        boolean hasInserted = false;
+        Timestamp timestamp = recordLine.getTimestamp();
+        if (timestamp != null) {
+            sql = "insert into chronicle (tag, description, inserted) values (?, ?, ?)";
+            hasInserted = true;
+        }
         try (Connection con = ds.getConnection();
-                PreparedStatement ps = con.prepareStatement("insert into chronicle (tag, description) values (?, ?)");) {
+                PreparedStatement ps = con.prepareStatement(sql);) {
             ps.setString(1, recordLine.getTag());
             ps.setString(2, recordLine.getDescription());
+            if (hasInserted) {
+                ps.setTimestamp(3, timestamp);
+            }
             rowNr = ps.executeUpdate();
         } catch (SQLException ex) {
             log.error("Application couldn't get a connection from the pool. ", ex);
