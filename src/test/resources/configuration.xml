@@ -18,6 +18,6 @@
 <properties>
         <color>blue</color>
         <logging>${log.level}</logging>
-        <time>Thu Nov 27 14:13:17 CET 2014</time>
+        <time>Thu Nov 27 18:04:09 CET 2014</time>
     </properties>
 </config>
