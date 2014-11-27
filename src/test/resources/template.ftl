@@ -1,12 +1,12 @@
 <#ftl>
 <#list lines as line>
-<#assign durationMinutes = line.getDuration().getStandardMinutes()>
-<#assign durationTotalMinutes = line.getTotalDuration().getStandardMinutes()>
-<#assign inserted = line.chronicleRecordLine.timestamp?string("HH:mm, EEE, MMM d ")>
-<#assign isSetDurationMinutes = (durationMinutes > 0)>
-<#if isSetDurationMinutes>  
+    <#assign durationMinutes = line.getDuration().getStandardMinutes()>
+    <#assign durationTotalMinutes = line.getTotalDuration().getStandardMinutes()>
+    <#assign inserted = line.chronicleRecordLine.timestamp?string("HH:mm, EEE, MMM d ")>
+    <#assign isSetDurationMinutes = (durationMinutes > 0)>
+    <#if isSetDurationMinutes>  
 ${line.chronicleRecordLine.count})${"\t"}${line.chronicleRecordLine.tag}${"\t"}${durationMinutes} / ${durationTotalMinutes}${"\t"}${inserted}
-<#else>
+    <#else>
 No duration minutes set.
-</#if>
+    </#if>
 </#list>

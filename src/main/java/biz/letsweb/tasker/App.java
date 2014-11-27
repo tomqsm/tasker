@@ -1,6 +1,7 @@
 package biz.letsweb.tasker;
 
-import biz.letsweb.tasker.databaseconnectivity.DataSourcePrepare;
+import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
+import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import biz.letsweb.tasker.persistence.model.CommentLine;
 import biz.letsweb.tasker.model.ConsoleViewModel;
@@ -8,6 +9,7 @@ import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import biz.letsweb.tasker.persistence.dao.CommentLineDao;
 import biz.letsweb.tasker.timecalculator.TimeCalaculator;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +24,9 @@ public class App {
 
   public static void main(String[] args) throws SQLException {
     log.info("Tasker starts.");
-    // DataSourcePrepare prepare = new DataSourcePrepare(DataSourcePrepare.Type.CLIENT);
-    // final DataSource dataSource = prepare.getDataSource();
-    InitializeDb initializeDb = new InitializeDb();
+     DataSourceFactory prepare = new DataSourceFactory(DataSourceFactory.Type.CLIENT);
+     final DataSource dataSource = prepare.getDataSource();
+    InitializeDb initializeDb = new InitializeDb(dataSource);
     initializeDb.createTables();
     // final Options options = new Options();
     // options.addOption("t", true, "type of entry");

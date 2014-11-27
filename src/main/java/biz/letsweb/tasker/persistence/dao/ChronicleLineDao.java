@@ -243,7 +243,7 @@ public class ChronicleLineDao {
     if ((ex instanceof SQLSyntaxErrorException)
         && (ex.getMessage().contains(TableNames.CHRONICLE.name()) || ex.getMessage().contains(
             TableNames.COMMENT.name()))) {
-      InitializeDb initializeTables = new InitializeDb();
+      InitializeDb initializeTables = new InitializeDb(ds);
       log.warn("Detected not tables existed. Creates automatically.");
       try {
         initializeTables.createTables();

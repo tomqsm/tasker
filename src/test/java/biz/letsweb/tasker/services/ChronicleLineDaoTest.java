@@ -1,8 +1,9 @@
 package biz.letsweb.tasker.services;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
-import biz.letsweb.tasker.databaseconnectivity.DataSourcePrepare;
+import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
+import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,42 +23,48 @@ import org.slf4j.LoggerFactory;
  */
 public class ChronicleLineDaoTest {
 
-  public ChronicleLineDaoTest() {}
+    public ChronicleLineDaoTest() {
+    }
 
-  public static final Logger log = LoggerFactory.getLogger(ChronicleLineDaoTest.class);
+    public static final Logger log = LoggerFactory.getLogger(ChronicleLineDaoTest.class);
 
-  private ChronicleLineDao chronicleDao;
+    private ChronicleLineDao chronicleDao;
+    private InitializeDb initializeDb;
 
-  @BeforeClass
-  public static void setUpClass() {}
+    @BeforeClass
+    public static void setUpClass() {
+    }
 
-  @AfterClass
-  public static void tearDownClass() {}
+    @AfterClass
+    public static void tearDownClass() {
+    }
 
-  @Before
-  public void setUp() {
-    chronicleDao =
-        new ChronicleLineDao(new DataSourcePrepare(DataSourcePrepare.Type.CLIENT).getDataSource());
-  }
+    @Before
+    public void setUp() throws SQLException {
+        final DataSourceFactory dataSourceFactory = new DataSourceFactory(DataSourceFactory.Type.CLIENT);
+        chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
+        initializeDb = new InitializeDb(dataSourceFactory.getDataSource());
+        final InitializeDb.Feedback createTables = initializeDb.createTables();
+        if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
+            initializeDb.clearTables();
+        }
+    }
 
-  /**
-   * Test of findLastRecord method, of class ChronicleLineDao.
-   */
-  // @Test
-  public void testFindLastRecord() {
-    final Map<String, Duration> durations = chronicleDao.findDurationsOfTodaysRecords();
-    // assertThat(durations).isEmpty();
-    System.out.println(durations.get("breakCoffe").getStandardMinutes());
+    /**
+     * Test of findLastRecord method, of class ChronicleLineDao.
+     */
+    // @Test
+    public void testFindLastRecord() {
+        final Map<String, Duration> durations = chronicleDao.findDurationsOfTodaysRecords();
+        // assertThat(durations).isEmpty();
+        System.out.println(durations.get("breakCoffe").getStandardMinutes());
 
-  }
+    }
 
-  @Test
-  public void returnsEmptyListWhenNoRecordsPerDay() throws NoRecordsInPoolException, SQLException {
-    InitializeDb initalizeDb = new InitializeDb();
-    initalizeDb.createTables();
-    initalizeDb.clearTables();
-    final List<ChronicleRecordLine> allRecords = chronicleDao.findAllRecords();
-    assertThat(allRecords).isNotNull();
-    assertThat(allRecords).isEmpty();
-  }
+    @Test
+    public void returnsEmptyListWhenNoRecordsPerDay() throws NoRecordsInPoolException, SQLException {
+        final List<ChronicleRecordLine> allRecords = chronicleDao.findAllRecords();
+        assertThat(allRecords).isNotNull();
+        assertThat(allRecords).isEmpty();
+    }
 }

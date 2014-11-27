@@ -13,22 +13,21 @@ import org.slf4j.LoggerFactory;
  *
  * @author toks
  */
-public class DataSourcePrepare {
+public class DataSourceFactory {
 
-  public static final Logger log = LoggerFactory.getLogger(DataSourcePrepare.class);
+  public static final Logger log = LoggerFactory.getLogger(DataSourceFactory.class);
 
   public static final File ROOT_FOLDER = new File("");
   public static String DB_NAME = "testdb";
   public static int PORT = 1527;
-  public String db = String
-      .format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
+  public String db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
   public static String USER = "tumcyk";
   public static String PASSWORD = "mypass";
   public static String SERVER_NAME = "localhost";
   public static boolean CREATE = true;
   private DataSource dataSource;
 
-  public DataSourcePrepare(XMLConfiguration xmlConfiguration) {
+  public DataSourceFactory(XMLConfiguration xmlConfiguration) {
     final SubnodeConfiguration xmlConfig = xmlConfiguration.configurationAt("database");
     USER = xmlConfig.getString("user");
     PASSWORD = xmlConfig.getString("password");
@@ -41,7 +40,7 @@ public class DataSourcePrepare {
     initialize(Type.valueOf(type));
   }
 
-  public DataSourcePrepare(Type type) {
+  public DataSourceFactory(Type type) {
     initialize(type);
   }
 

@@ -1,9 +1,9 @@
 package biz.letsweb.tasker.timecalculator;
 
-import biz.letsweb.tasker.databaseconnectivity.DataSourcePrepare;
+import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
-import biz.letsweb.tasker.persistence.model.ConsoleViewModel;
-import biz.letsweb.tasker.services.ChronicleLineDao;
+import biz.letsweb.tasker.model.ConsoleViewModel;
+import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -33,7 +33,7 @@ public class TimeCalaculatorTest {
 
   @Before
   public void setUp() {
-    chronicleDao = new ChronicleLineDao(new DataSourcePrepare(DataSourcePrepare.Type.CLIENT).getDataSource());
+    chronicleDao = new ChronicleLineDao(new DataSourceFactory(DataSourceFactory.Type.CLIENT).getDataSource());
   }
 
   @After
