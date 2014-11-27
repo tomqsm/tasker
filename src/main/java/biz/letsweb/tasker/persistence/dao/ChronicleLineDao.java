@@ -1,5 +1,6 @@
 package biz.letsweb.tasker.persistence.dao;
 
+import biz.letsweb.tasker.UnsetIdException;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.databaseconnectivity.TableNames;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
@@ -25,14 +26,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ChronicleLineDao {
 
-  public static final Logger log = LoggerFactory.getLogger(ChronicleLineDao.class);
-  private final DataSource ds;
+    public static final Logger log = LoggerFactory.getLogger(ChronicleLineDao.class);
+    private final DataSource ds;
 
-  public ChronicleLineDao(DataSource dataSource) {
-    this.ds = dataSource;
-  }
+    public ChronicleLineDao(DataSource dataSource) {
+        this.ds = dataSource;
+    }
 
-  public ChronicleRecordLine findLastRecord() {
+    public ChronicleRecordLine findLastRecord() {
         final ChronicleRecordLine record = new ChronicleRecordLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where id=(select max(id) from chronicle)";
         try (Connection con = ds.getConnection();
@@ -51,7 +52,7 @@ public class ChronicleLineDao {
         return record;
     }
 
-  public ChronicleRecordLine findRecordByCount(int cnt) {
+    public ChronicleRecordLine findRecordByCount(int cnt) {
         final ChronicleRecordLine record = new ChronicleRecordLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT = ?";
         try (Connection con = ds.getConnection();
@@ -72,7 +73,7 @@ public class ChronicleLineDao {
         return record;
     }
 
-  public ChronicleRecordLine findLastButOneRecord() {
+    public ChronicleRecordLine findLastButOneRecord() {
         //find current task
         final ChronicleRecordLine record = new ChronicleRecordLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 2 order by CNT desc offset 1 rows";
@@ -91,7 +92,7 @@ public class ChronicleLineDao {
         return record;
     }
 
-  public List<ChronicleRecordLine> findAllRecords() {
+    public List<ChronicleRecordLine> findAllRecords() {
         //find current task
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
@@ -111,16 +112,16 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-  private int correctNRecordsDemand(int n) {
-    int allRecords = findRecordsCount();
-    int lackingDifference = allRecords - n;
-    if (lackingDifference < 0) {
-      n = n + lackingDifference;
+    private int correctNRecordsDemand(int n) {
+        int allRecords = findRecordsCount();
+        int lackingDifference = allRecords - n;
+        if (lackingDifference < 0) {
+            n = n + lackingDifference;
+        }
+        return n;
     }
-    return n;
-  }
 
-  public List<ChronicleRecordLine> findLastNRecords(int n) {
+    public List<ChronicleRecordLine> findLastNRecords(int n) {
         //find current task
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         n = correctNRecordsDemand(n);
@@ -144,7 +145,7 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-  public List<ChronicleRecordLine> findLastFirstNRecords(int n) {
+    public List<ChronicleRecordLine> findNRecordsDescending(int n) {
         //find current task
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         n = correctNRecordsDemand(n);
@@ -168,7 +169,7 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-  public List<ChronicleRecordLine> findLastNRecordsToday(int n) {
+    public List<ChronicleRecordLine> findLastNRecordsToday(int n) {
         //find current task
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
@@ -194,7 +195,7 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-  public List<ChronicleRecordLine> findAllRecordsWithCount() {
+    public List<ChronicleRecordLine> findAllRecordsWithCount() {
         //find current task
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
@@ -215,7 +216,7 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-  public List<ChronicleRecordLine> findTodaysRecords() {
+    public List<ChronicleRecordLine> findTodaysRecords() {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '%s' and '%s'",
@@ -239,23 +240,23 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-  private void initializeTablesUponException(SQLException ex) {
-    if ((ex instanceof SQLSyntaxErrorException)
-        && (ex.getMessage().contains(TableNames.CHRONICLE.name()) || ex.getMessage().contains(
-            TableNames.COMMENT.name()))) {
-      InitializeDb initializeTables = new InitializeDb(ds);
-      log.warn("Detected not tables existed. Creates automatically.");
-      try {
-        initializeTables.createTables();
-      } catch (SQLException ex1) {
-        log.error("Application couldn't create tables. ", ex1);
-      }
-    } else {
-      log.error("Application couldn't get a connection from the pool. ", ex);
+    private void initializeTablesUponException(SQLException ex) {
+        if ((ex instanceof SQLSyntaxErrorException)
+                && (ex.getMessage().contains(TableNames.CHRONICLE.name()) || ex.getMessage().contains(
+                        TableNames.COMMENT.name()))) {
+            InitializeDb initializeTables = new InitializeDb(ds);
+            log.warn("Detected not tables existed. Creates automatically.");
+            try {
+                initializeTables.createTables();
+            } catch (SQLException ex1) {
+                log.error("Application couldn't create tables. ", ex1);
+            }
+        } else {
+            log.error("Application couldn't get a connection from the pool. ", ex);
+        }
     }
-  }
 
-  public Map<String, Duration> findDurationsOfTodaysRecords() {
+    public Map<String, Duration> findDurationsOfTodaysRecords() {
         final Map<String, Duration> durations = new HashMap<>();
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '%s' and '%s'",
@@ -283,7 +284,7 @@ public class ChronicleLineDao {
         return durations;
     }
 
-  public int findRecordsCount() {
+    public int findRecordsCount() {
         int count = -1;
         final String sql = "select count(*) as cnt from chronicle";
         try (Connection con = ds.getConnection();
@@ -298,7 +299,7 @@ public class ChronicleLineDao {
         return count;
     }
 
-  public int insertNewRecord(ChronicleRecordLine recordLine) {
+    public int insertNewRecord(ChronicleRecordLine recordLine) {
         int rowNr = 0;
         String sql = "insert into chronicle (tag, description) values (?, ?)";
         boolean hasInserted = false;
@@ -321,11 +322,15 @@ public class ChronicleLineDao {
         return rowNr;
     }
 
-  public int deleteRecord(ChronicleRecordLine recordLine) {
+    public int deleteRecord(ChronicleRecordLine recordLine) throws UnsetIdException {
         int rowNr = 0;
+        final int idToDelete = recordLine.getId();
+        if (idToDelete == 0) {
+            throw new UnsetIdException("Unset id: " + idToDelete);
+        }
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("delete from chronicle where id = ?");) {
-            ps.setInt(1, recordLine.getId());
+            ps.setInt(1, idToDelete);
             rowNr = ps.executeUpdate();
         } catch (SQLException ex) {
             log.error("Application couldn't get a connection from the pool. ", ex);

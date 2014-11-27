@@ -1,6 +1,7 @@
 package biz.letsweb.tasker.persistence.model;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 /**
  *
@@ -62,6 +63,32 @@ public class ChronicleRecordLine {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.tag);
+        hash = 97 * hash + Objects.hashCode(this.timestamp);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ChronicleRecordLine other = (ChronicleRecordLine) obj;
+        if (!Objects.equals(this.tag, other.tag)) {
+            return false;
+        }
+        if (!Objects.equals(this.timestamp, other.timestamp)) {
+            return false;
+        }
+        return true;
     }
 
     @Override

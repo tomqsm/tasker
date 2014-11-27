@@ -24,7 +24,26 @@
         <classpath.prefix>lib</classpath.prefix>
         <main.class>biz.letsweb.tasker.App</main.class>
     </properties>
-
+    <profiles>
+        <profile>
+            <id>development</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <log.level>info</log.level>
+            </properties>
+        </profile>
+        <profile>
+            <id>production</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <log.level>info</log.level>
+            </properties>
+        </profile>
+    </profiles>
     <dependencies>
         
         <!--start of configuration dependencies-->

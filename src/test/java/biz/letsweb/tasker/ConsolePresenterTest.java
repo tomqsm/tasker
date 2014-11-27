@@ -1,5 +1,6 @@
 package biz.letsweb.tasker;
 
+import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
@@ -8,13 +9,12 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.configuration.XMLConfiguration;
 import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,7 +31,8 @@ public class ConsolePresenterTest {
 
     @Before
     public void setUp() throws SQLException {
-        final DataSourceFactory dataSourceFactory = new DataSourceFactory(DataSourceFactory.Type.CLIENT);
+        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
+        final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
         initializeDb = new InitializeDb(dataSourceFactory.getDataSource());
         final InitializeDb.Feedback createTables = initializeDb.createTables();
@@ -46,7 +47,7 @@ public class ConsolePresenterTest {
     }
 
     @Test
-    public void addsThreeRecordsAndFindsThenAsLastThree() throws NoRecordsInPoolException {
+    public void addsThreeRecordsAndFindsThenAsLastThree() throws NoRecordsInPoolException, UnsetIdException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         ChronicleRecordLine line0 = new ChronicleRecordLine();
         line0.setTag("work0");
@@ -58,7 +59,7 @@ public class ConsolePresenterTest {
         chronicleDao.insertNewRecord(line1);
         chronicleDao.insertNewRecord(line2);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastFirstNRecords(3);
+        final List<ChronicleRecordLine> last3Lines = chronicleDao.findNRecordsDescending(3);
         line2 = last3Lines.get(0);
         line1 = last3Lines.get(1);
         line0 = last3Lines.get(2);
@@ -102,7 +103,7 @@ public class ConsolePresenterTest {
     }
 
     @Test
-    public void whenThereAreNRecordsForTodayItReturnsNRecords() throws NoRecordsInPoolException {
+    public void whenThereAreNRecordsForTodayItReturnsNRecords() throws NoRecordsInPoolException, UnsetIdException {
         DateTime dateTime = new DateTime();
         int rowsAtStart = chronicleDao.findRecordsCount();
         ChronicleRecordLine line0 = new ChronicleRecordLine();
@@ -124,7 +125,7 @@ public class ConsolePresenterTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 3);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastFirstNRecords(3);
+        final List<ChronicleRecordLine> last3Lines = chronicleDao.findNRecordsDescending(3);
         line2 = last3Lines.get(0);
         line1 = last3Lines.get(1);
         line0 = last3Lines.get(2);

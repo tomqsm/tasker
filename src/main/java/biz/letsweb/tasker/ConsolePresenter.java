@@ -68,4 +68,31 @@ public class ConsolePresenter {
         }
         return durations;
     }
+  public Map<String, Duration> loadDurations(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
+        if (recordPool.isEmpty()) {
+            log.error("Record pool is empty.");
+            throw new NoRecordsInPoolException("No records in designated pool.");
+        }
+        Map<String, Duration> durations = new HashMap<>();
+        for (int i = 0; i < recordPool.size(); i++) {
+            Timestamp earlierTimestamp
+                    = (i == 0 ? recordPool.get(i).getTimestamp() : recordPool.get(i).getTimestamp());
+            Timestamp laterTimestamp
+                    = (i == (recordPool.size() - 1)
+                    ? new Timestamp(System.currentTimeMillis())
+                    : recordPool.get(i + 1).getTimestamp());
+            DateTime from = new DateTime(earlierTimestamp);
+            DateTime to = new DateTime(laterTimestamp);
+            Duration duration = new Duration(from, to);
+            if (durations.containsKey(recordPool.get(i).getTag())) {
+                Duration d = durations.get(recordPool.get(i).getTag());
+                d = d.plus(duration.getMillis());
+                durations.put(recordPool.get(i).getTag(), d);
+            } else {
+                durations.put(recordPool.get(i).getTag(), duration);
+            }
+        }
+        return durations;
+    }
+
 }

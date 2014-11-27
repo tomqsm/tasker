@@ -36,13 +36,13 @@ public class DataSourceFactory {
     PORT = xmlConfig.getInt("portNumber");
     CREATE = xmlConfig.getBoolean("create");
     db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
-    final String type = xmlConfig.getString("type");
+    final String type = xmlConfig.getString("type").toUpperCase();
     initialize(Type.valueOf(type));
   }
 
-  public DataSourceFactory(Type type) {
-    initialize(type);
-  }
+//  public DataSourceFactory(Type type) {
+//    initialize(type);
+//  }
 
   private void initialize(Type type) {
     if (type == Type.CLIENT) {
