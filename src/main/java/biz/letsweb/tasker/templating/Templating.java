@@ -26,7 +26,7 @@ public class Templating {
     private final File templateFolder;
 
     public Templating() {
-        templateFolder = new File("src/test/resources");
+        templateFolder = new File("");
         root = new HashMap();
         initializeTemplate();
     }

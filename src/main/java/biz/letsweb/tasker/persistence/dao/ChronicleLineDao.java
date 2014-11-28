@@ -211,7 +211,6 @@ public class ChronicleLineDao {
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '%s' and '%s'",
                 boundsTimestamp.getStartOfTodayTimestamp().toString(), boundsTimestamp.getEndOfTodayTimestamp().toString());
-        log.info("{}", sql);
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery();) {

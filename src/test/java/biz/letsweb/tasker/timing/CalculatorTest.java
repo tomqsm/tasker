@@ -22,12 +22,16 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author toks
  */
 public class CalculatorTest {
+
+    public static final Logger log = LoggerFactory.getLogger(CalculatorTest.class);
 
     private Calculator calculator;
     private ChronicleLineDao chronicleDao;
@@ -103,9 +107,9 @@ public class CalculatorTest {
         assertThat(last3Lines).hasSize(3);
         assertThat(line2).isEqualTo(last3Lines.get(0));
 
-        final Map<String, Duration> durations = calculator.calculateDurations(last3Lines);
-        assertThat(durations.get("work0").getStandardMinutes()).isEqualTo(work0DurationMinutes);
-        assertThat(durations.get("work1").getStandardMinutes()).isEqualTo(work1DurationMinutes);
+        final List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0DurationMinutes);
+        assertThat(durations.get(1).getTotalDuration().getStandardMinutes()).isEqualTo(work1DurationMinutes);
     }
 
     /**
@@ -169,8 +173,9 @@ public class CalculatorTest {
         final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(5);
         assertThat(last3Lines).hasSize(5);
 
-        final Map<String, Duration> durations = calculator.calculateDurations(last3Lines);
-        assertThat(durations.get("work0").getStandardMinutes()).isEqualTo(work0aDurationMinutes);
+        final List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        log.info("{}", durations.get(3));
+        assertThat(durations.get(3).getTotalDuration().getStandardMinutes()).isEqualTo(work0aDurationMinutes);
     }
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -222,9 +227,9 @@ public class CalculatorTest {
         assertThat(last3Lines).hasSize(3);
         assertThat(line2).isEqualTo(last3Lines.get(0));
 
-        final Map<String, Duration> durations = calculator.calculateDurations(last3Lines);
-        thrown.expect(NullPointerException.class);
-        assertThat(durations.get("work_1").getStandardMinutes()).isEqualTo(work0DurationMinutes);
+        final List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+//        thrown.expect(NullPointerException.class);
+        assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0DurationMinutes);
 
     }
 
@@ -260,12 +265,12 @@ public class CalculatorTest {
 
         List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         assertThat(last3Lines).hasSize(3);
-        Map<String, Duration> durations = calculator.calculateDurations(last3Lines);
-        assertThat(durations.get("work0").getStandardMinutes()).isEqualTo(work0Duration);
+        List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0Duration);
         last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         Collections.reverse(last3Lines);
         durations = calculator.calculateDurations(last3Lines);
-        assertThat(durations.get("work0").getStandardMinutes()).isEqualTo(work0Duration);
+        assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0Duration);
     }
 
 }

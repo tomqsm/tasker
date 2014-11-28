@@ -60,7 +60,7 @@ public class DataSourceFactory {
     if (CREATE) {
       ds.setCreateDatabase("create");
     }
-    log.info("Initialized enbedded db in: {}", db);
+    log.debug("Initialized enbedded db in: {}", db);
     return ds;
   }
 
@@ -74,7 +74,7 @@ public class DataSourceFactory {
       ds.setCreateDatabase("create");
     }
     ds.setPortNumber(PORT);
-    log.info("Initialized client db in: {}", db);
+    log.debug("Initialized client db in: {}", db);
     return ds;
   }
 

@@ -172,7 +172,7 @@ public class TemplatingTest {
         ChronicleRecordLine line0 = new ChronicleRecordLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
-        dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
+        dateTime = new DateTime(2014, 11, 24, 0, 1, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
@@ -195,11 +195,11 @@ public class TemplatingTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
-        assertThat(last3Lines).hasSize(3);
-        assertThat(line2).isEqualTo(last3Lines.get(0));
+        final List<ChronicleRecordLine> lastNLines = chronicleDao.findLastNRecordsUpwards(4);
+//        assertThat(last3Lines).hasSize(3);
+//        assertThat(line2).isEqualTo(last3Lines.get(0));
 
-        final Map<String, Duration> durations = calculator.calculateDurations(last3Lines);
+        final List<ChronicleRecordLine> lines = calculator.calculateDurations(lastNLines);
 
         final ConsoleViewModel consoleViewModel = new ConsoleViewModel();
         consoleViewModel.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "work description", new Timestamp(System.currentTimeMillis())));
@@ -209,8 +209,7 @@ public class TemplatingTest {
         models.add(consoleViewModel);
         //
         Templating templating = new Templating();
-        templating.addParameter("lines", models);
-        templating.addParameter("durations", durations);
+        templating.addParameter("lines", lines);
         templating.parseTemplate();
     }
 

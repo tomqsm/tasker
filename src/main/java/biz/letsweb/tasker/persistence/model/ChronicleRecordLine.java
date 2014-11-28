@@ -2,6 +2,8 @@ package biz.letsweb.tasker.persistence.model;
 
 import java.sql.Timestamp;
 import java.util.Objects;
+import org.joda.time.Duration;
+import org.joda.time.PeriodType;
 
 /**
  *
@@ -13,6 +15,8 @@ public class ChronicleRecordLine {
     private String tag;
     private String description;
     private Timestamp timestamp;
+    private Duration duration;
+    private Duration totalDuration;
 
     public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp) {
         this.id = id;
@@ -63,6 +67,22 @@ public class ChronicleRecordLine {
 
     public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    public Duration getTotalDuration() {
+        return totalDuration;
+    }
+
+    public void setTotalDuration(Duration totalDuration) {
+        this.totalDuration = totalDuration;
     }
 
     @Override

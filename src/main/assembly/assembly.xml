@@ -18,6 +18,7 @@
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>*.bat</include>
+                <include>*.ftl</include>
             </includes>
             <filtered>true</filtered>
         </fileSet>

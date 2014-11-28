@@ -6,7 +6,7 @@ import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import biz.letsweb.tasker.templating.Templating;
-import java.sql.SQLException;
+import biz.letsweb.tasker.timing.Calculator;
 import java.util.List;
 import javax.sql.DataSource;
 import org.apache.commons.cli.BasicParser;
@@ -25,13 +25,12 @@ public class App {
     public App() {
     }
 
-    public static void main(String[] args) throws SQLException {
-        log.info("Tasker starts.");
-        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
+    public static void main(String[] args) throws Exception {
+        final XMLConfiguration configuration = new ConfigurationProvider("config/configuration.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         final DataSource dataSource = dataSourceFactory.getDataSource();
-        final InitializeDb initializeDb = new InitializeDb(dataSource);
-        initializeDb.createTables();
+//        final InitializeDb initializeDb = new InitializeDb(dataSource);
+        //initializeDb.createTables();
         final Options options = new Options();
         options.addOption("t", true, "type of entry");
         options.addOption("useConfig", false, "type of entry");
@@ -65,8 +64,8 @@ public class App {
             System.out.println(ex.getMessage());
         }
         // List<ChronicleRecordLine> lastNRecordsToday = chronicleLineDao.findLastNRecordsToday(3);
-        List<ChronicleRecordLine> lastNRecords = chronicleLineDao.findLastNRecordsUpwards(3);
-        ConsolePresenter presenter = new ConsolePresenter();
+        final List<ChronicleRecordLine> todayRecords = chronicleLineDao.findTodaysRecords();
+        final ConsolePresenter presenter = new ConsolePresenter();
         if (cmd.hasOption(activityOption)) {
 
             String description = cmd.getOptionValue(desc);
@@ -76,7 +75,7 @@ public class App {
 
             if (activityString.equalsIgnoreCase(breakString)) {
                 chronicleLine.setTag(breakString);
-                chronicleLine.setDescription(description.isEmpty() ? null : description);
+                chronicleLine.setDescription(description);
                 chronicleLineDao.insertNewRecord(chronicleLine);
             } else if (activityString.equalsIgnoreCase(breakCoffeString)) {
                 chronicleLine.setTag(breakCoffeString);
@@ -97,7 +96,11 @@ public class App {
         } else if (activityString.equalsIgnoreCase(showTodaysEntries)) {
         } else if (activityString.equalsIgnoreCase(durationOfCurrent)) {
         }
-        Templating templating = new Templating();
+        final Calculator calculator = new Calculator();
+        final List<ChronicleRecordLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
+        final Templating templating = new Templating();
+        templating.addParameter("lines", lines);
+        templating.parseTemplate();
     }
 
 }
