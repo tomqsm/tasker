@@ -15,13 +15,16 @@ CREATE TABLE comment (
 );
 
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 1;
-select * from TUMCYK.CHRONICLE;
+select * from CHRONICLE;
 select * from COMMENT;
 select * from (select ROW_NUMBER() OVER() as R, chronicle.* from chronicle) AS CR where R <= 2;
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 2;
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 2 order by CNT desc offset 1 rows;
 select * from chronicle offset (select count (*) from chronicle)-2 rows;
 select count (*) as cnt from chronicle;
-select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '2014-11-20 10:00:52.985' and '2014-11-20 23:09:52.985';
-select * from chronicle where tag='work';
+select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '2014-12-01 09:00:52.985' and '2014-12-01 12:09:52.985';
+select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where inserted between '2014-12-01 09:00:52.985' and '2014-12-01 12:09:52.985') AS CR;
+select * from chronicle where tag!='work' and tag!='break';
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT=1;
+select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag='work') AS CR where CNT > (select count (*) from chronicle where tag='work')-3 order by CNT desc;
+select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-2 order by CNT desc;

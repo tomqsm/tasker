@@ -57,6 +57,24 @@ public class ChronicleLineDao {
         return record;
     }
 
+    public List<String> findDistictiveTags() throws NoRecordsInPoolException {
+        List<String> tags = new ArrayList<>();
+        final String currentSql = "select distinct tag from chronicle";
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement(currentSql);
+                ResultSet currentResultSet = ps.executeQuery();) {
+            while (currentResultSet.next()) {
+                tags.add(currentResultSet.getString("tag"));
+            }
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        if (tags.isEmpty()) {
+            throw new NoRecordsInPoolException("No tags in database.");
+        }
+        return tags;
+    }
+
     public ChronicleRecordLine findRecordByCount(int cnt) {
         final ChronicleRecordLine record = new ChronicleRecordLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT = ?";
@@ -160,6 +178,51 @@ public class ChronicleLineDao {
         }
         return recordLines;
     }
+    public List<ChronicleRecordLine> findLastNRecordsByTagUpwards(String tag, int n) {
+        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag=?) AS CR where CNT > (select count (*) from chronicle where tag=?)-? order by CNT desc");) {
+            ps.setString(1, tag);
+            ps.setString(2, tag);
+            ps.setInt(3, n);
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                currentEntry.setId(rs.getInt("id"));
+                currentEntry.setCount(rs.getInt("cnt"));
+                currentEntry.setTag(rs.getString("tag"));
+                currentEntry.setDescription(rs.getString("description"));
+                currentEntry.setTimestamp(rs.getTimestamp("inserted"));
+                recordLines.add(currentEntry);
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return recordLines;
+    }
+    
+    public List<ChronicleRecordLine> findLastNNamingRecordsUpwards(int n) {
+        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-? order by CNT desc");) {
+            ps.setInt(1, n);
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                currentEntry.setId(rs.getInt("id"));
+                currentEntry.setCount(rs.getInt("cnt"));
+                currentEntry.setTag(rs.getString("tag"));
+                currentEntry.setDescription(rs.getString("description"));
+                currentEntry.setTimestamp(rs.getTimestamp("inserted"));
+                recordLines.add(currentEntry);
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return recordLines;
+    }
 
     public List<ChronicleRecordLine> findLastNRecordsTodayUpwards(int n) {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
@@ -209,7 +272,7 @@ public class ChronicleLineDao {
     public List<ChronicleRecordLine> findTodaysRecords() {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
-        final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '%s' and '%s'",
+        final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where inserted between '%s' and '%s') AS CR",
                 boundsTimestamp.getStartOfTodayTimestamp().toString(), boundsTimestamp.getEndOfTodayTimestamp().toString());
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(sql);

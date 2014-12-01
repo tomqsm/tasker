@@ -13,7 +13,7 @@ public class ChronicleRecordLine {
     private int id;
     private int count;
     private String tag;
-    private String description;
+    private String description="";
     private Timestamp timestamp;
     private Duration duration;
     private Duration totalDuration;

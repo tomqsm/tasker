@@ -27,26 +27,15 @@ public class App {
 
     public static void main(String[] args) throws Exception {
         final XMLConfiguration configuration = new ConfigurationProvider("config/configuration.xml").getXMLConfiguration();
+//        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         final DataSource dataSource = dataSourceFactory.getDataSource();
-//        final InitializeDb initializeDb = new InitializeDb(dataSource);
-        //initializeDb.createTables();
         final Options options = new Options();
         options.addOption("t", true, "type of entry");
-        options.addOption("useConfig", false, "type of entry");
-        options.addOption("activity", true, "kind of task");
+        options.addOption("tag", true, "kind of task");
         options.addOption("desc", true, "description of task");
         final CommandLineParser parser = new BasicParser();
-        final String breakString = "break";
-        final String breakCoffeString = "breakCoffe";
-        final String workString = "work";
-        final String stopString = "stop";
-        final String showAllString = "showAll";
-        final String showTodaysEntries = "showTodaysEntries";
-        final String showTodayEntriesString = "showTodayEntries";
-        final String durationOfCurrent = "durationOfCurrent";
-        final String durationOfPrevious = "durationOfPrevious";
-        final String activityOption = "activity";
+        final String tagOption = "tag";
         final String desc = "desc";
         String activityString = "";
         CommandLine cmd = null;
@@ -63,43 +52,24 @@ public class App {
         } catch (NoRecordsInPoolException ex) {
             System.out.println(ex.getMessage());
         }
-        // List<ChronicleRecordLine> lastNRecordsToday = chronicleLineDao.findLastNRecordsToday(3);
-        final List<ChronicleRecordLine> todayRecords = chronicleLineDao.findTodaysRecords();
-        final ConsolePresenter presenter = new ConsolePresenter();
-        if (cmd.hasOption(activityOption)) {
-
-            String description = cmd.getOptionValue(desc);
-            activityString = cmd.getOptionValue(activityOption);
-
-            ChronicleRecordLine chronicleLine = new ChronicleRecordLine();
-
-            if (activityString.equalsIgnoreCase(breakString)) {
-                chronicleLine.setTag(breakString);
-                chronicleLine.setDescription(description);
-                chronicleLineDao.insertNewRecord(chronicleLine);
-            } else if (activityString.equalsIgnoreCase(breakCoffeString)) {
-                chronicleLine.setTag(breakCoffeString);
-                chronicleLine.setDescription(description.isEmpty() ? null : description);
-                chronicleLineDao.insertNewRecord(chronicleLine);
-            } else if (activityString.equalsIgnoreCase(stopString)) {
-                chronicleLine.setTag(stopString);
-                chronicleLine.setDescription(description.isEmpty() ? null : description);
-                chronicleLineDao.insertNewRecord(chronicleLine);
-            } else if (activityString.equalsIgnoreCase(workString)) {
-                chronicleLine.setTag(workString);
-                chronicleLine.setDescription(description.isEmpty() ? null : description);
-                chronicleLineDao.insertNewRecord(chronicleLine);
-                log.info("inserted: {}", chronicleLine);
-            } else if (activityString.equalsIgnoreCase(showAllString)) {
-
+        if (cmd.hasOption(tagOption)) {
+            activityString = cmd.getOptionValue(tagOption);
+            if (currentChronicle!=null && activityString.equalsIgnoreCase(currentChronicle.getTag())) {
+                System.out.println("That's the current etry.");
+            } else {
+                String description = cmd.getOptionValue(desc);
+                ChronicleRecordLine newLine = new ChronicleRecordLine();
+                newLine.setTag(activityString);
+                newLine.setDescription(description);
+                chronicleLineDao.insertNewRecord(newLine);
             }
-        } else if (activityString.equalsIgnoreCase(showTodaysEntries)) {
-        } else if (activityString.equalsIgnoreCase(durationOfCurrent)) {
         }
         final Calculator calculator = new Calculator();
         final List<ChronicleRecordLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
+        final List<ChronicleRecordLine> namingRecords = chronicleLineDao.findLastNNamingRecordsUpwards(2);
         final Templating templating = new Templating();
         templating.addParameter("lines", lines);
+        templating.addParameter("namingRecords", namingRecords);
         templating.parseTemplate();
     }
 

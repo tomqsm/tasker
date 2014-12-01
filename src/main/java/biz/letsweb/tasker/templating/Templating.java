@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -52,10 +53,10 @@ public class Templating {
 
     public void parseTemplate() throws IOException, TemplateException, SAXException, ParserConfigurationException {
         loadMetaParameters();
-        Writer out = new OutputStreamWriter(System.out);
-        template.process(root, out);
-        out.flush();
-        out.close();
+        try (Writer out = new OutputStreamWriter(System.out, Charset.defaultCharset().displayName())) {
+            template.process(root, out);
+            out.flush();
+        }
     }
 
     public void addParameter(final String key, final Object value) {

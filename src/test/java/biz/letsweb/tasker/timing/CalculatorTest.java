@@ -66,7 +66,7 @@ public class CalculatorTest {
      * Test of calculateDurations method, of class Calculator.
      */
     @Test
-    public void calculatesDurationsBetweenVaryingRecords() throws NoRecordsInPoolException, UnexpectedOrderingException {
+    public void calculatesDurationsAcrossVaryingRecords() throws NoRecordsInPoolException, UnexpectedOrderingException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0

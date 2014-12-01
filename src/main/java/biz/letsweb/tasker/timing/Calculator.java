@@ -1,8 +1,6 @@
 package biz.letsweb.tasker.timing;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
-import biz.letsweb.tasker.UnexpectedOrderingException;
-import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
 import java.sql.Timestamp;
 import java.util.ArrayList;
