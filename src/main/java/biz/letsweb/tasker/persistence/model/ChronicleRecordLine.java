@@ -1,22 +1,25 @@
 package biz.letsweb.tasker.persistence.model;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import org.joda.time.Duration;
-import org.joda.time.PeriodType;
 
 /**
  *
  * @author toks
  */
 public class ChronicleRecordLine {
+
     private int id;
     private int count;
     private String tag;
-    private String description="";
+    private String description = "";
     private Timestamp timestamp;
     private Duration duration;
     private Duration totalDuration;
+    private List<CommentLine> comments;
 
     public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp) {
         this.id = id;
@@ -24,6 +27,17 @@ public class ChronicleRecordLine {
         this.tag = tag;
         this.description = description;
         this.timestamp = timestamp;
+    }
+
+    public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp, CommentLine comment) {
+        this(id, count, tag, description, timestamp);
+        this.comments = new ArrayList<>();
+        this.comments.add(comment);
+    }
+
+    public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp, List<CommentLine> comments) {
+        this(id, count, tag, description, timestamp);
+        this.comments = comments;
     }
 
     public ChronicleRecordLine() {
@@ -85,6 +99,21 @@ public class ChronicleRecordLine {
         this.totalDuration = totalDuration;
     }
 
+    public List<CommentLine> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentLine> comments) {
+        this.comments = comments;
+    }
+
+    public void addComment(CommentLine commentLine) {
+        if (comments == null) {
+            comments = new ArrayList<>();
+        }
+        comments.add(commentLine);
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
@@ -115,5 +144,5 @@ public class ChronicleRecordLine {
     public String toString() {
         return "ChronicleRecordLine{" + "id=" + id + ", count=" + count + ", tag=" + tag + ", description=" + description + ", timestamp=" + timestamp + '}';
     }
-    
+
 }

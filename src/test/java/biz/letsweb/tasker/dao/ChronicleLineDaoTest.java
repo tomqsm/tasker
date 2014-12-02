@@ -152,17 +152,17 @@ public class ChronicleLineDaoTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNNamingRecordsUpwards(3);
+        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
         assertThat(last3Lines).hasSize(3);
-        assertThat(line2).isEqualTo(last3Lines.get(0));
-        assertThat(line0).isEqualTo(last3Lines.get(2));
+        assertThat(line2).isEqualTo(last3Lines.get(2));
+        assertThat(line0).isEqualTo(last3Lines.get(0));
     }
     
     @Test
     public void findNNamingRecordsNonWorkOrNonBreakWhenNonInDb() throws NoRecordsInPoolException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNNamingRecordsUpwards(3);
+        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
         assertThat(last3Lines).isEmpty();
     }
 

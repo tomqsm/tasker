@@ -202,10 +202,10 @@ public class ChronicleLineDao {
         return recordLines;
     }
     
-    public List<ChronicleRecordLine> findLastNNamingRecordsUpwards(int n) {
+    public List<ChronicleRecordLine> findLastNNamingRecordsDownwards(int n) {
         final List<ChronicleRecordLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
-                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-? order by CNT desc");) {
+                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-? order by CNT asc");) {
             ps.setInt(1, n);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {

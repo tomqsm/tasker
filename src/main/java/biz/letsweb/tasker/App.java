@@ -37,7 +37,7 @@ public class App {
         final CommandLineParser parser = new BasicParser();
         final String tagOption = "tag";
         final String desc = "desc";
-        String activityString = "";
+        String tagString = "";
         CommandLine cmd = null;
         try {
             cmd = parser.parse(options, args);
@@ -46,31 +46,35 @@ public class App {
         }
 
         final ChronicleLineDao chronicleLineDao = new ChronicleLineDao(dataSource);
-        ChronicleRecordLine currentChronicle = null;
+        ChronicleRecordLine currentChronicle = new ChronicleRecordLine();
+        boolean recordsInDb = false;
         try {
             currentChronicle = chronicleLineDao.findLastRecord();
+            recordsInDb = true;
         } catch (NoRecordsInPoolException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("You haven't got any named tasks yet, please enter a task name and description.");
+            // when here it means 1) no records in db
         }
         if (cmd.hasOption(tagOption)) {
-            activityString = cmd.getOptionValue(tagOption);
-            if (currentChronicle!=null && activityString.equalsIgnoreCase(currentChronicle.getTag())) {
-                System.out.println("That's the current etry.");
+            tagString = cmd.getOptionValue(tagOption);
+            if (recordsInDb && tagString.equalsIgnoreCase(currentChronicle.getTag())) {
+                System.out.println("You haven't got any named tasks yet, please enter a task name and description.");
             } else {
                 String description = cmd.getOptionValue(desc);
                 ChronicleRecordLine newLine = new ChronicleRecordLine();
-                newLine.setTag(activityString);
+                newLine.setTag(tagString);
                 newLine.setDescription(description);
                 chronicleLineDao.insertNewRecord(newLine);
             }
         }
-        final Calculator calculator = new Calculator();
-        final List<ChronicleRecordLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
-        final List<ChronicleRecordLine> namingRecords = chronicleLineDao.findLastNNamingRecordsUpwards(2);
-        final Templating templating = new Templating();
-        templating.addParameter("lines", lines);
-        templating.addParameter("namingRecords", namingRecords);
-        templating.parseTemplate();
+        if (recordsInDb) {
+            final Calculator calculator = new Calculator();
+            final List<ChronicleRecordLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
+            final List<ChronicleRecordLine> namingRecords = chronicleLineDao.findLastNNamingRecordsDownwards(3);
+            final Templating templating = new Templating();
+            templating.addParameter("lines", lines);
+            templating.addParameter("namingRecords", namingRecords);
+            templating.parseTemplate();
+        }
     }
-
 }

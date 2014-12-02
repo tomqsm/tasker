@@ -210,7 +210,7 @@ public class TemplatingTest {
         //
         Templating templating = new Templating();
         templating.addParameter("lines", lines);
-        templating.addParameter("namingRecords", chronicleDao.findLastNNamingRecordsUpwards(2));
+        templating.addParameter("namingRecords", chronicleDao.findLastNNamingRecordsDownwards(2));
         templating.parseTemplate();
     }
 

@@ -1,10 +1,12 @@
 <#ftl>
 <#setting locale="pl">
 <#if namingRecords?has_content>
-    <#list namingRecords as nr>
-            XX ${nr.getId()}
-    </#list>
-        </#if>
+    <#assign indent = "\t">
+<#list namingRecords as nr>
+${indent}${nr.getId()?string.computer} ${nr.tag}
+<#assign indent = indent + "\t"> |__
+ </#list>
+</#if>
 <#list lines as line>
     <#assign tag = line.tag>
     <#assign durationHours = line.getDuration().toPeriod().getHours()>
