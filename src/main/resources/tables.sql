@@ -29,3 +29,8 @@ select * from chronicle where tag!='work' and tag!='break';
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT=1;
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag='work') AS CR where CNT > (select count (*) from chronicle where tag='work')-3 order by CNT desc;
 select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-2 order by CNT desc;
+select * from chronicle where id in (select p.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO or p.ID=302);
+select * from chronicle where id in (select p.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO);
+select * from chronicle where id in (select c.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO);
+select * from chronicle where id in (select c.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO) or id in (select p.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO);
+select p.id, c.subto from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO;
