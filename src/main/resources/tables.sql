@@ -40,7 +40,12 @@ select * from chronicle where id in (select p.ID from CHRONICLE as p group by p.
 select * from CHRONICLE;
 INSERT INTO CHRONICLE (SUBTO, TAG, DESCRIPTION, INSERTED) VALUES (0, 'esg04', 'banking', DEFAULT);
 
-select p.id as "parent.id", p.TAG as "parent.tag", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO;
+select p.id as "parent.id", p.TAG as "parent.tag", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO and (p.ID=311 or c.ID=311);
+--find children to ID 
+select p.id as "parent.id", p.TAG as "parent.tag", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO and (p.ID=311);
+--find parent chain to ID
+select p.id as "parent.id", p.TAG as "parent.tag", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO and (c.ID=311 or c.ID = (select p.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO and (c.ID=311)));
+select p.id as "parent.id", p.TAG as "parent.tag", p.SUBTO as "parent.subto", c.SUBTO as "child.subto", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO;
 select * from CHRONICLE where SUBTO=311;
 
 --is parent (has child/children - hasn't got a child) hence is parent by default

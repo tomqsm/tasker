@@ -257,14 +257,6 @@ public class ChronicleLineDao {
         return dependencies;
     }
 
-    private Map<DependencyModel, DependencyModel> loadDependencies(ResultSet rs, DependencyModel p, DependencyModel c) throws SQLException {
-        Map<DependencyModel, DependencyModel> dependencies = new HashMap<>();
-        while (rs.next()) {
-
-        }
-        return null;
-    }
-
     public List<ChronicleLine> findLastNRecordsTodayUpwards(int n) {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleLine> recordLines = new ArrayList<>();
