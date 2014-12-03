@@ -5,11 +5,13 @@ import biz.letsweb.tasker.UnsetIdException;
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
+import biz.letsweb.tasker.model.DependencyModel;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.configuration.XMLConfiguration;
 import static org.fest.assertions.Assertions.assertThat;
@@ -58,7 +60,7 @@ public class ChronicleLineDaoTest {
 
     @Test
     public void returnsEmptyListWhenNoRecordsPerDay() throws NoRecordsInPoolException, SQLException {
-        final List<ChronicleRecordLine> allRecords = chronicleDao.findAllRecords();
+        final List<ChronicleLine> allRecords = chronicleDao.findAllRecords();
         assertThat(allRecords).isNotNull();
         assertThat(allRecords).isEmpty();
     }
@@ -67,7 +69,7 @@ public class ChronicleLineDaoTest {
 
     @Test
     public void cantDeleteRecordWithIdNotSet() throws UnsetIdException {
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         chronicleDao.insertNewRecord(line0);
         thrown.expect(UnsetIdException.class);
@@ -79,28 +81,28 @@ public class ChronicleLineDaoTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work0");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
         line1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line1);
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -110,7 +112,7 @@ public class ChronicleLineDaoTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         assertThat(last3Lines).hasSize(3);
         assertThat(line2).isEqualTo(last3Lines.get(0));
         assertThat(line0).isEqualTo(last3Lines.get(2));
@@ -121,28 +123,28 @@ public class ChronicleLineDaoTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work0");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
         line1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line1);
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -152,17 +154,17 @@ public class ChronicleLineDaoTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
         assertThat(last3Lines).hasSize(3);
         assertThat(line2).isEqualTo(last3Lines.get(2));
         assertThat(line0).isEqualTo(last3Lines.get(0));
     }
-    
+
     @Test
     public void findNNamingRecordsNonWorkOrNonBreakWhenNonInDb() throws NoRecordsInPoolException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
         assertThat(last3Lines).isEmpty();
     }
 
@@ -171,28 +173,28 @@ public class ChronicleLineDaoTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work0");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
         line1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line1);
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -202,7 +204,7 @@ public class ChronicleLineDaoTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> lastNByTag = chronicleDao.findLastNRecordsByTagUpwards("work0", 2);
+        final List<ChronicleLine> lastNByTag = chronicleDao.findLastNRecordsByTagUpwards("work0", 2);
         assertThat(lastNByTag).hasSize(2);
         assertThat(line0).isEqualTo(lastNByTag.get(0));
         assertThat(line_1).isEqualTo(lastNByTag.get(1));
@@ -213,35 +215,35 @@ public class ChronicleLineDaoTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
 
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work0");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
         line1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line1);
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
         line2.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line2);
 
-        ChronicleRecordLine line3 = new ChronicleRecordLine();
+        ChronicleLine line3 = new ChronicleLine();
         line3.setTag("work3");
         line3.setDescription("line2 description");
         chronicleDao.insertNewRecord(line3);
@@ -249,7 +251,7 @@ public class ChronicleLineDaoTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 5);
 
-        List<ChronicleRecordLine> lastNLines;
+        List<ChronicleLine> lastNLines;
         lastNLines = chronicleDao.findLastNRecordsUpwards(10);
         assertThat(lastNLines).hasSize(rowsAfterAdds);
         lastNLines = chronicleDao.findLastNRecordsDownwards(10);
@@ -261,7 +263,21 @@ public class ChronicleLineDaoTest {
     @Test
     public void restingLastRecordFromEmptyDbGetsEmptyObject() throws NoRecordsInPoolException {
         thrown.expect(NoRecordsInPoolException.class);
-        final ChronicleRecordLine lastRecord = chronicleDao.findLastRecord();
+        final ChronicleLine lastRecord = chronicleDao.findLastRecord();
         assertThat(lastRecord).isNotNull();
+    }
+
+    @Test
+    public void canLoadDependencies() throws SQLException {
+        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration_1.xml").getXMLConfiguration();
+        final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
+        final DataSource dataSource = dataSourceFactory.getDataSource();
+        chronicleDao = new ChronicleLineDao(dataSource);
+        final Map<DependencyModel, DependencyModel> dependencies = chronicleDao.findDependencyMap();
+        DependencyModel search = new DependencyModel();
+        search.setId(304);
+        System.out.println("found: " + dependencies.get(search) + " -- " +dependencies.get(search).getChildren());
+        
+//        assertThat(findDependencyMap).isNotNull();
     }
 }

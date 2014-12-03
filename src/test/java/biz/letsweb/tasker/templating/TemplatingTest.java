@@ -5,7 +5,7 @@ import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.model.ConsoleViewModel;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import biz.letsweb.tasker.timing.Calculator;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.Configuration;
@@ -111,15 +111,15 @@ public class TemplatingTest {
     public void passingObjectToFreemarker() throws Exception {
         List<ConsoleViewModel> lines = new ArrayList<>();
         ConsoleViewModel consoleViewModel0 = new ConsoleViewModel();
-        consoleViewModel0.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel0.setChronicleRecordLine(new ChronicleLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
         consoleViewModel0.setDuration(Duration.millis(System.currentTimeMillis()));
         consoleViewModel0.setTotalDuration(Duration.ZERO);
         ConsoleViewModel consoleViewModel1 = new ConsoleViewModel();
-        consoleViewModel1.setChronicleRecordLine(new ChronicleRecordLine(2, 2, "break", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel1.setChronicleRecordLine(new ChronicleLine(2, 2, "break", "desc", new Timestamp(System.currentTimeMillis())));
         consoleViewModel1.setDuration(Duration.millis(System.currentTimeMillis()));
         consoleViewModel1.setTotalDuration(Duration.ZERO);
         ConsoleViewModel consoleViewModel2 = new ConsoleViewModel();
-        consoleViewModel2.setChronicleRecordLine(new ChronicleRecordLine(3, 3, "work", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel2.setChronicleRecordLine(new ChronicleLine(3, 3, "work", "desc", new Timestamp(System.currentTimeMillis())));
         consoleViewModel2.setDuration(Duration.millis(System.currentTimeMillis()));
         consoleViewModel2.setTotalDuration(Duration.ZERO);
         lines.add(consoleViewModel0);
@@ -146,7 +146,7 @@ public class TemplatingTest {
 //    @Test
     public void parseTemplateUsingTemplateObject() throws Exception {
         final ConsoleViewModel consoleViewModel = new ConsoleViewModel();
-        consoleViewModel.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "work description", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel.setChronicleRecordLine(new ChronicleLine(1, 1, "work", "work description", new Timestamp(System.currentTimeMillis())));
         consoleViewModel.setDuration(new Duration(System.currentTimeMillis()));
         consoleViewModel.setTotalDuration(new Duration(System.currentTimeMillis()));
         List<ConsoleViewModel> models = new ArrayList<>();
@@ -162,21 +162,21 @@ public class TemplatingTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 1, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
@@ -184,7 +184,7 @@ public class TemplatingTest {
         chronicleDao.insertNewRecord(line1);
         int work0DurationMinutes = 6;
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -195,14 +195,14 @@ public class TemplatingTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> lastNLines = chronicleDao.findLastNRecordsUpwards(4);
+        final List<ChronicleLine> lastNLines = chronicleDao.findLastNRecordsUpwards(4);
 //        assertThat(last3Lines).hasSize(3);
 //        assertThat(line2).isEqualTo(last3Lines.get(0));
 
-        final List<ChronicleRecordLine> lines = calculator.calculateDurations(lastNLines);
+        final List<ChronicleLine> lines = calculator.calculateDurations(lastNLines);
 
         final ConsoleViewModel consoleViewModel = new ConsoleViewModel();
-        consoleViewModel.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "work description", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel.setChronicleRecordLine(new ChronicleLine(1, 1, "work", "work description", new Timestamp(System.currentTimeMillis())));
         consoleViewModel.setDuration(new Duration(System.currentTimeMillis()));
         consoleViewModel.setTotalDuration(new Duration(System.currentTimeMillis()));
         List<ConsoleViewModel> models = new ArrayList<>();

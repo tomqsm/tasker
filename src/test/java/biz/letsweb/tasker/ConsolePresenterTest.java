@@ -4,7 +4,7 @@ import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -49,17 +49,17 @@ public class ConsolePresenterTest {
     @Test
     public void addsThreeRecordsAndFindsThenAsLastThree() throws NoRecordsInPoolException, UnsetIdException {
         int rowsAtStart = chronicleDao.findRecordsCount();
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         chronicleDao.insertNewRecord(line0);
         chronicleDao.insertNewRecord(line1);
         chronicleDao.insertNewRecord(line2);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         line2 = last3Lines.get(0);
         line1 = last3Lines.get(1);
         line0 = last3Lines.get(2);
@@ -98,7 +98,7 @@ public class ConsolePresenterTest {
 
     @Test
     public void testThatItOrdersRecentSummativeDaily() throws NoRecordsInPoolException, SQLException {
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
     }
 
@@ -106,7 +106,7 @@ public class ConsolePresenterTest {
     public void whenThereAreNRecordsForTodayItReturnsNRecords() throws NoRecordsInPoolException, UnsetIdException {
         DateTime dateTime = new DateTime();
         int rowsAtStart = chronicleDao.findRecordsCount();
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = dateTime.withDate(2014, 11, 24);
@@ -115,9 +115,9 @@ public class ConsolePresenterTest {
         dateTime = dateTime.withSecondOfMinute(0);
         dateTime = dateTime.withMillisOfSecond(1);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         chronicleDao.insertNewRecord(line0);
         chronicleDao.insertNewRecord(line1);
@@ -125,7 +125,7 @@ public class ConsolePresenterTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 3);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         line2 = last3Lines.get(0);
         line1 = last3Lines.get(1);
         line0 = last3Lines.get(2);

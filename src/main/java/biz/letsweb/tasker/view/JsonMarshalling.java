@@ -1,7 +1,7 @@
 package biz.letsweb.tasker.view;
 
 import biz.letsweb.tasker.model.ConsoleViewModel;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.io.IOException;
 import java.sql.Timestamp;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -20,7 +20,7 @@ public class JsonMarshalling {
 
     public void marshall() throws IOException{
         ConsoleViewModel consoleViewModel = new ConsoleViewModel();
-        consoleViewModel.setChronicleRecordLine(new ChronicleRecordLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
+        consoleViewModel.setChronicleRecordLine(new ChronicleLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
         consoleViewModel.setDuration(Duration.ZERO);
         consoleViewModel.setTotalDuration(Duration.ZERO);
         ObjectMapper objectMapper = new ObjectMapper();

@@ -1,7 +1,7 @@
 package biz.letsweb.tasker.timing;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,13 +20,13 @@ import org.slf4j.LoggerFactory;
 public class Calculator {
     public static final Logger log = LoggerFactory.getLogger(Calculator.class);
 
-    public List<ChronicleRecordLine> calculateDurations(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
+    public List<ChronicleLine> calculateDurations(List<ChronicleLine> recordPool) throws NoRecordsInPoolException {
         checkRecordPoolHasRecords(recordPool);
         assureAscendingOrderingById(recordPool);
         final Map<String, Duration> durations = new HashMap<>();
-        final List<ChronicleRecordLine> lines = new ArrayList<>();
+        final List<ChronicleLine> lines = new ArrayList<>();
         for (int i = 0; i < recordPool.size(); i++) {
-            final ChronicleRecordLine iLine = recordPool.get(i);
+            final ChronicleLine iLine = recordPool.get(i);
             Timestamp earlierTimestamp = (i == 0 ? iLine.getTimestamp() : iLine.getTimestamp());
             Timestamp laterTimestamp = (i == (recordPool.size() - 1) ? new Timestamp(System.currentTimeMillis()) : recordPool.get(i + 1).getTimestamp());
             DateTime from = new DateTime(earlierTimestamp.getTime());
@@ -47,7 +47,7 @@ public class Calculator {
         return lines;
     }
 
-    private void assureAscendingOrderingById(List<ChronicleRecordLine> recordPool) {
+    private void assureAscendingOrderingById(List<ChronicleLine> recordPool) {
         final int first = recordPool.get(0).getId();
         final int size = recordPool.size();
         if (size > 1) {
@@ -59,7 +59,7 @@ public class Calculator {
         }
     }
 
-    private void checkRecordPoolHasRecords(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
+    private void checkRecordPoolHasRecords(List<ChronicleLine> recordPool) throws NoRecordsInPoolException {
         if (recordPool.isEmpty()) {
             throw new NoRecordsInPoolException("At lease one record expected in the pool.");
         }

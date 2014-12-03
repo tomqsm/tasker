@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<config>
+<database>
+        <user>tumcyk</user>
+        <password>mypass</password>
+        <databaseName>testdb</databaseName>
+        <rootFolder>c:\Users\toks\Documents\Tasker-1.0-SNAPSHOT\</rootFolder>
+        <serverName>localhost</serverName>
+        <portNumber>1527</portNumber>
+        <create>true</create>
+        <type>embedded</type>
+        <initializeTables>
+            <initializeTable>CREATE TABLE chronicle (
+    id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,
+    subto INT DEFAULT 0,
+    tag VARCHAR(50) DEFAULT NULL,
+    description VARCHAR(400) DEFAULT NULL,
+    inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)</initializeTable>
+            <clearTable>delete from chronicle</clearTable>
+        </initializeTables>
+    </database>
+<properties>
+        <color>blue</color>
+        <logging>${log.level}</logging>
+        <time>Wed Dec 03 13:17:10 CET 2014</time>
+    </properties>
+</config>

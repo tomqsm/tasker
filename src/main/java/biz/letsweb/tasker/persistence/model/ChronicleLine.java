@@ -10,7 +10,7 @@ import org.joda.time.Duration;
  *
  * @author toks
  */
-public class ChronicleRecordLine {
+public class ChronicleLine {
 
     private int id;
     private int count;
@@ -19,9 +19,9 @@ public class ChronicleRecordLine {
     private Timestamp timestamp;
     private Duration duration;
     private Duration totalDuration;
-    private List<CommentLine> comments;
+    private List<ChronicleLine> otherLines;
 
-    public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp) {
+    public ChronicleLine(int id, int count, String tag, String description, Timestamp timestamp) {
         this.id = id;
         this.count = count;
         this.tag = tag;
@@ -29,18 +29,18 @@ public class ChronicleRecordLine {
         this.timestamp = timestamp;
     }
 
-    public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp, CommentLine comment) {
+    public ChronicleLine(int id, int count, String tag, String description, Timestamp timestamp, ChronicleLine otherLine) {
         this(id, count, tag, description, timestamp);
-        this.comments = new ArrayList<>();
-        this.comments.add(comment);
+        this.otherLines = new ArrayList<>();
+        this.otherLines.add(otherLine);
     }
 
-    public ChronicleRecordLine(int id, int count, String tag, String description, Timestamp timestamp, List<CommentLine> comments) {
+    public ChronicleLine(int id, int count, String tag, String description, Timestamp timestamp, List<ChronicleLine> otherLine) {
         this(id, count, tag, description, timestamp);
-        this.comments = comments;
+        this.otherLines = otherLine;
     }
 
-    public ChronicleRecordLine() {
+    public ChronicleLine() {
     }
 
     public int getId() {
@@ -99,19 +99,19 @@ public class ChronicleRecordLine {
         this.totalDuration = totalDuration;
     }
 
-    public List<CommentLine> getComments() {
-        return comments;
+    public List<ChronicleLine> getOtherLines() {
+        return otherLines;
     }
 
-    public void setComments(List<CommentLine> comments) {
-        this.comments = comments;
+    public void setOtherLines(List<ChronicleLine> comments) {
+        this.otherLines = comments;
     }
 
-    public void addComment(CommentLine commentLine) {
-        if (comments == null) {
-            comments = new ArrayList<>();
+    public void addOtherLineComment(ChronicleLine commentLine) {
+        if (otherLines == null) {
+            otherLines = new ArrayList<>();
         }
-        comments.add(commentLine);
+        otherLines.add(commentLine);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ChronicleRecordLine {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ChronicleRecordLine other = (ChronicleRecordLine) obj;
+        final ChronicleLine other = (ChronicleLine) obj;
         if (!Objects.equals(this.tag, other.tag)) {
             return false;
         }

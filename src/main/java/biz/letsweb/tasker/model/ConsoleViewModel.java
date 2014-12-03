@@ -1,6 +1,6 @@
 package biz.letsweb.tasker.model;
 
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import org.joda.time.Duration;
 
 /**
@@ -10,18 +10,18 @@ import org.joda.time.Duration;
 //@XmlRootElement
 public class ConsoleViewModel {
 
-    private ChronicleRecordLine chronicleRecordLine;
+    private ChronicleLine chronicleRecordLine;
     private Duration duration;
     private Duration totalDuration;
 
     public ConsoleViewModel() {
     }
 
-    public ChronicleRecordLine getChronicleRecordLine() {
+    public ChronicleLine getChronicleRecordLine() {
         return chronicleRecordLine;
     }
 
-    public void setChronicleRecordLine(ChronicleRecordLine chronicleRecordLine) {
+    public void setChronicleRecordLine(ChronicleLine chronicleRecordLine) {
         this.chronicleRecordLine = chronicleRecordLine;
     }
 

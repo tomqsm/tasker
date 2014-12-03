@@ -4,7 +4,8 @@ import biz.letsweb.tasker.NoRecordsInPoolException;
 import biz.letsweb.tasker.UnsetIdException;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.databaseconnectivity.TableNames;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.model.DependencyModel;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import biz.letsweb.tasker.timing.DayBoundsTimestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,14 +35,14 @@ public class ChronicleLineDao {
         this.ds = dataSource;
     }
 
-    public ChronicleRecordLine findLastRecord() throws NoRecordsInPoolException {
-        ChronicleRecordLine record = null;
+    public ChronicleLine findLastRecord() throws NoRecordsInPoolException {
+        ChronicleLine record = null;
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where id=(select max(id) from chronicle)";
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(currentSql);
                 ResultSet currentResultSet = ps.executeQuery();) {
             while (currentResultSet.next()) {
-                record = new ChronicleRecordLine();
+                record = new ChronicleLine();
                 record.setId(currentResultSet.getInt("id"));
                 record.setCount(currentResultSet.getInt("cnt"));
                 record.setTag(currentResultSet.getString("tag"));
@@ -75,8 +76,8 @@ public class ChronicleLineDao {
         return tags;
     }
 
-    public ChronicleRecordLine findRecordByCount(int cnt) {
-        final ChronicleRecordLine record = new ChronicleRecordLine();
+    public ChronicleLine findRecordByCount(int cnt) {
+        final ChronicleLine record = new ChronicleLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT = ?";
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(currentSql);) {
@@ -96,9 +97,9 @@ public class ChronicleLineDao {
         return record;
     }
 
-    public ChronicleRecordLine findLastButOneRecord() {
+    public ChronicleLine findLastButOneRecord() {
         //find current task
-        final ChronicleRecordLine record = new ChronicleRecordLine();
+        final ChronicleLine record = new ChronicleLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 2 order by CNT desc offset 1 rows";
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(currentSql);
@@ -115,14 +116,14 @@ public class ChronicleLineDao {
         return record;
     }
 
-    public List<ChronicleRecordLine> findAllRecords() {
+    public List<ChronicleLine> findAllRecords() {
         //find current task
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from chronicle");
                 ResultSet rs = ps.executeQuery();) {
             while (rs.next()) {
-                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                final ChronicleLine currentEntry = new ChronicleLine();
                 currentEntry.setId(rs.getInt("id"));
                 currentEntry.setTag(rs.getString("tag"));
                 currentEntry.setDescription(rs.getString("description"));
@@ -135,14 +136,14 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findLastNRecordsDownwards(int n) {
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+    public List<ChronicleLine> findLastNRecordsDownwards(int n) {
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT asc");) {
             ps.setInt(1, n);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                final ChronicleLine currentEntry = new ChronicleLine();
                 currentEntry.setId(rs.getInt("id"));
                 currentEntry.setCount(rs.getInt("cnt"));
                 currentEntry.setTag(rs.getString("tag"));
@@ -157,14 +158,14 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findLastNRecordsUpwards(int n) {
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+    public List<ChronicleLine> findLastNRecordsUpwards(int n) {
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT desc");) {
             ps.setInt(1, n);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                final ChronicleLine currentEntry = new ChronicleLine();
                 currentEntry.setId(rs.getInt("id"));
                 currentEntry.setCount(rs.getInt("cnt"));
                 currentEntry.setTag(rs.getString("tag"));
@@ -178,8 +179,9 @@ public class ChronicleLineDao {
         }
         return recordLines;
     }
-    public List<ChronicleRecordLine> findLastNRecordsByTagUpwards(String tag, int n) {
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+
+    public List<ChronicleLine> findLastNRecordsByTagUpwards(String tag, int n) {
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag=?) AS CR where CNT > (select count (*) from chronicle where tag=?)-? order by CNT desc");) {
             ps.setString(1, tag);
@@ -187,29 +189,7 @@ public class ChronicleLineDao {
             ps.setInt(3, n);
             final ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
-                currentEntry.setId(rs.getInt("id"));
-                currentEntry.setCount(rs.getInt("cnt"));
-                currentEntry.setTag(rs.getString("tag"));
-                currentEntry.setDescription(rs.getString("description"));
-                currentEntry.setTimestamp(rs.getTimestamp("inserted"));
-                recordLines.add(currentEntry);
-            }
-            rs.close();
-        } catch (SQLException ex) {
-            initializeTablesUponException(ex);
-        }
-        return recordLines;
-    }
-    
-    public List<ChronicleRecordLine> findLastNNamingRecordsDownwards(int n) {
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
-        try (Connection con = ds.getConnection();
-                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-? order by CNT asc");) {
-            ps.setInt(1, n);
-            final ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                final ChronicleLine currentEntry = new ChronicleLine();
                 currentEntry.setId(rs.getInt("id"));
                 currentEntry.setCount(rs.getInt("cnt"));
                 currentEntry.setTag(rs.getString("tag"));
@@ -224,9 +204,70 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findLastNRecordsTodayUpwards(int n) {
+    public List<ChronicleLine> findLastNNamingRecordsDownwards(int n) {
+        final List<ChronicleLine> recordLines = new ArrayList<>();
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-? order by CNT asc");) {
+            ps.setInt(1, n);
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                final ChronicleLine currentEntry = new ChronicleLine();
+                currentEntry.setId(rs.getInt("id"));
+                currentEntry.setCount(rs.getInt("cnt"));
+                currentEntry.setTag(rs.getString("tag"));
+                currentEntry.setDescription(rs.getString("description"));
+                currentEntry.setTimestamp(rs.getTimestamp("inserted"));
+                recordLines.add(currentEntry);
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return recordLines;
+    }
+
+    public Map<DependencyModel, DependencyModel> findDependencyMap() throws SQLException {
+        final Map<DependencyModel, DependencyModel> dependencies = new HashMap<>();
+        final List<DependencyModel> models = new ArrayList<>();
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement("select p.id as \"parent.id\", p.TAG as \"parent.tag\", c.id as \"child.id\", c.TAG as \"child.tag\", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO");) {
+            final ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                DependencyModel pModel = new DependencyModel();
+                pModel.setId(rs.getInt("parent.id"));
+                pModel.setTag(rs.getString("parent.tag"));
+                DependencyModel cModel = new DependencyModel();
+                cModel.setId(rs.getInt("child.id"));
+                cModel.setTag(rs.getString("child.tag"));
+                if (dependencies.containsKey(pModel)) {
+                    final DependencyModel foundPModel = dependencies.get(pModel);
+                    foundPModel.addChild(cModel);
+                    dependencies.put(foundPModel, foundPModel);
+                } else {
+                    pModel.addChild(cModel);
+                    dependencies.put(pModel, pModel);
+                }
+                pModel.addChild(cModel);
+                models.add(pModel);
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return dependencies;
+    }
+
+    private Map<DependencyModel, DependencyModel> loadDependencies(ResultSet rs, DependencyModel p, DependencyModel c) throws SQLException {
+        Map<DependencyModel, DependencyModel> dependencies = new HashMap<>();
+        while (rs.next()) {
+
+        }
+        return null;
+    }
+
+    public List<ChronicleLine> findLastNRecordsTodayUpwards(int n) {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? and inserted between ? and ? order by CNT desc");) {
             ps.setInt(1, n);
@@ -234,7 +275,7 @@ public class ChronicleLineDao {
             ps.setTimestamp(3, boundsTimestamp.getEndOfTodayTimestamp());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                final ChronicleRecordLine currentEntry = new ChronicleRecordLine();
+                final ChronicleLine currentEntry = new ChronicleLine();
                 currentEntry.setId(rs.getInt("id"));
                 currentEntry.setCount(rs.getInt("cnt"));
                 currentEntry.setTag(rs.getString("tag"));
@@ -249,13 +290,13 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findAllRecordsWithCount() {
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+    public List<ChronicleLine> findAllRecordsWithCount() {
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR");
                 ResultSet rs = ps.executeQuery();) {
             while (rs.next()) {
-                final ChronicleRecordLine entry = new ChronicleRecordLine();
+                final ChronicleLine entry = new ChronicleLine();
                 entry.setId(rs.getInt("id"));
                 entry.setCount(rs.getInt("cnt"));
                 entry.setTag(rs.getString("tag"));
@@ -269,16 +310,16 @@ public class ChronicleLineDao {
         return recordLines;
     }
 
-    public List<ChronicleRecordLine> findTodaysRecords() {
+    public List<ChronicleLine> findTodaysRecords() {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
-        final List<ChronicleRecordLine> recordLines = new ArrayList<>();
+        final List<ChronicleLine> recordLines = new ArrayList<>();
         final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where inserted between '%s' and '%s') AS CR",
                 boundsTimestamp.getStartOfTodayTimestamp().toString(), boundsTimestamp.getEndOfTodayTimestamp().toString());
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(sql);
                 ResultSet rs = ps.executeQuery();) {
             while (rs.next()) {
-                final ChronicleRecordLine entry = new ChronicleRecordLine();
+                final ChronicleLine entry = new ChronicleLine();
                 entry.setId(rs.getInt("id"));
                 entry.setCount(rs.getInt("cnt"));
                 entry.setTag(rs.getString("tag"));
@@ -351,7 +392,7 @@ public class ChronicleLineDao {
         return count;
     }
 
-    public int insertNewRecord(ChronicleRecordLine recordLine) {
+    public int insertNewRecord(ChronicleLine recordLine) {
         int rowNr = 0;
         String sql = "insert into chronicle (tag, description) values (?, ?)";
         boolean hasInserted = false;
@@ -374,7 +415,7 @@ public class ChronicleLineDao {
         return rowNr;
     }
 
-    public int deleteRecord(ChronicleRecordLine recordLine) throws UnsetIdException {
+    public int deleteRecord(ChronicleLine recordLine) throws UnsetIdException {
         int rowNr = 0;
         final int idToDelete = recordLine.getId();
         if (idToDelete == 0) {

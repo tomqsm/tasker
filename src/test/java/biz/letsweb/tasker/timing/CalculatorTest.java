@@ -6,7 +6,7 @@ import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Collections;
@@ -70,21 +70,21 @@ public class CalculatorTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work_1");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
@@ -92,7 +92,7 @@ public class CalculatorTest {
         chronicleDao.insertNewRecord(line1);
         int work0DurationMinutes = 6;
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -103,11 +103,11 @@ public class CalculatorTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         assertThat(last3Lines).hasSize(3);
         assertThat(line2).isEqualTo(last3Lines.get(0));
 
-        final List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        final List<ChronicleLine> durations = calculator.calculateDurations(last3Lines);
         assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0DurationMinutes);
         assertThat(durations.get(1).getTotalDuration().getStandardMinutes()).isEqualTo(work1DurationMinutes);
     }
@@ -121,21 +121,21 @@ public class CalculatorTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work0");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
@@ -143,7 +143,7 @@ public class CalculatorTest {
         chronicleDao.insertNewRecord(line1);
         int work0DurationMinutes = 6;
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -151,7 +151,7 @@ public class CalculatorTest {
         chronicleDao.insertNewRecord(line2);
         int work1DurationMinutes = 4;
 
-        ChronicleRecordLine line0a = new ChronicleRecordLine();
+        ChronicleLine line0a = new ChronicleLine();
         line0a.setTag("work0");
         line0a.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 20, 0, 0);
@@ -159,7 +159,7 @@ public class CalculatorTest {
         chronicleDao.insertNewRecord(line0a);
         int work0aDurationMinutes = work0DurationMinutes + 11;
 
-        ChronicleRecordLine line1a = new ChronicleRecordLine();
+        ChronicleLine line1a = new ChronicleLine();
         line1a.setTag("work1");
         line1a.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 31, 0, 0);
@@ -170,10 +170,10 @@ public class CalculatorTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 6);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(5);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(5);
         assertThat(last3Lines).hasSize(5);
 
-        final List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        final List<ChronicleLine> durations = calculator.calculateDurations(last3Lines);
         log.info("{}", durations.get(3));
         assertThat(durations.get(3).getTotalDuration().getStandardMinutes()).isEqualTo(work0aDurationMinutes);
     }
@@ -190,21 +190,21 @@ public class CalculatorTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line_1 = new ChronicleRecordLine();
+        ChronicleLine line_1 = new ChronicleLine();
         line_1.setTag("work_1");
         line_1.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 23, 23, 59, 0, 0);
         line_1.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line_1);
 
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 6, 0, 0);
@@ -212,7 +212,7 @@ public class CalculatorTest {
         chronicleDao.insertNewRecord(line1);
         int work0DurationMinutes = 6;
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -223,11 +223,11 @@ public class CalculatorTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 4);
 
-        final List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
+        final List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         assertThat(last3Lines).hasSize(3);
         assertThat(line2).isEqualTo(last3Lines.get(0));
 
-        final List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        final List<ChronicleLine> durations = calculator.calculateDurations(last3Lines);
 //        thrown.expect(NullPointerException.class);
         assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0DurationMinutes);
 
@@ -238,14 +238,14 @@ public class CalculatorTest {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
-        ChronicleRecordLine line0 = new ChronicleRecordLine();
+        ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
         line0.setDescription("line0 description");
         DateTime dateTime = new DateTime(2014, 11, 24, 0, 0, 0, 0);
         line0.setTimestamp(new Timestamp(dateTime.getMillis()));
         chronicleDao.insertNewRecord(line0);
 
-        ChronicleRecordLine line1 = new ChronicleRecordLine();
+        ChronicleLine line1 = new ChronicleLine();
         line1.setTag("work1");
         line1.setDescription("line1 description");
         dateTime = new DateTime(2014, 11, 24, 0, 5, 0, 0);
@@ -253,7 +253,7 @@ public class CalculatorTest {
         chronicleDao.insertNewRecord(line1);
         int work0Duration = 5;
 
-        ChronicleRecordLine line2 = new ChronicleRecordLine();
+        ChronicleLine line2 = new ChronicleLine();
         line2.setTag("work2");
         line2.setDescription("line2 description");
         dateTime = new DateTime(2014, 11, 24, 0, 10, 0, 0);
@@ -263,9 +263,9 @@ public class CalculatorTest {
         int rowsAfterAdds = chronicleDao.findRecordsCount();
         assertThat(rowsAfterAdds).isEqualTo(rowsAtStart + 3);
 
-        List<ChronicleRecordLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
+        List<ChronicleLine> last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         assertThat(last3Lines).hasSize(3);
-        List<ChronicleRecordLine> durations = calculator.calculateDurations(last3Lines);
+        List<ChronicleLine> durations = calculator.calculateDurations(last3Lines);
         assertThat(durations.get(0).getTotalDuration().getStandardMinutes()).isEqualTo(work0Duration);
         last3Lines = chronicleDao.findLastNRecordsUpwards(3);
         Collections.reverse(last3Lines);

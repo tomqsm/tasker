@@ -3,7 +3,7 @@ package biz.letsweb.tasker;
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import biz.letsweb.tasker.templating.Templating;
 import biz.letsweb.tasker.timing.Calculator;
 import java.util.List;
@@ -45,7 +45,7 @@ public class App {
         }
 
         final ChronicleLineDao chronicleLineDao = new ChronicleLineDao(dataSource);
-        ChronicleRecordLine currentChronicle = new ChronicleRecordLine();
+        ChronicleLine currentChronicle = new ChronicleLine();
         boolean recordsInDb = false;
         try {
             currentChronicle = chronicleLineDao.findLastRecord();
@@ -60,7 +60,7 @@ public class App {
                 System.out.println("You haven't got any named tasks yet, please enter a task name and description.");
             } else {
                 String description = cmd.getOptionValue(desc);
-                ChronicleRecordLine newLine = new ChronicleRecordLine();
+                ChronicleLine newLine = new ChronicleLine();
                 newLine.setTag(tagString);
                 newLine.setDescription(description);
                 chronicleLineDao.insertNewRecord(newLine);
@@ -68,8 +68,8 @@ public class App {
         }
         if (recordsInDb) {
             final Calculator calculator = new Calculator();
-            final List<ChronicleRecordLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
-            final List<ChronicleRecordLine> namingRecords = chronicleLineDao.findLastNNamingRecordsDownwards(3);
+            final List<ChronicleLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
+            final List<ChronicleLine> namingRecords = chronicleLineDao.findLastNNamingRecordsDownwards(3);
             final Templating templating = new Templating();
             templating.addParameter("lines", lines);
             templating.addParameter("namingRecords", namingRecords);

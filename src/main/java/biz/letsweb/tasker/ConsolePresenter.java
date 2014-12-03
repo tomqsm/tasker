@@ -1,6 +1,6 @@
 package biz.letsweb.tasker;
 
-import biz.letsweb.tasker.persistence.model.ChronicleRecordLine;
+import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
@@ -18,7 +18,7 @@ public class ConsolePresenter {
 
   public static final Logger log = LoggerFactory.getLogger(ConsolePresenter.class);
 
-  public void displayDurationOfNRecord(List<ChronicleRecordLine> lastNRecords)
+  public void displayDurationOfNRecord(List<ChronicleLine> lastNRecords)
       throws NoRecordsInPoolException {
     if (lastNRecords.isEmpty()) {
       log.error("Record pool is empty.");
@@ -42,7 +42,7 @@ public class ConsolePresenter {
     }
   }
 
-  public Map<String, Duration> displayDurationSummativePerTag(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
+  public Map<String, Duration> displayDurationSummativePerTag(List<ChronicleLine> recordPool) throws NoRecordsInPoolException {
         if (recordPool.isEmpty()) {
             log.error("Record pool is empty.");
             throw new NoRecordsInPoolException("No records in designated pool.");
@@ -68,7 +68,7 @@ public class ConsolePresenter {
         }
         return durations;
     }
-  public Map<String, Duration> loadDurations(List<ChronicleRecordLine> recordPool) throws NoRecordsInPoolException {
+  public Map<String, Duration> loadDurations(List<ChronicleLine> recordPool) throws NoRecordsInPoolException {
         if (recordPool.isEmpty()) {
             log.error("Record pool is empty.");
             throw new NoRecordsInPoolException("No records in designated pool.");

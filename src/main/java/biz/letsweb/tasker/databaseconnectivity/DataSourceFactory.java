@@ -17,7 +17,7 @@ public class DataSourceFactory {
 
   public static final Logger log = LoggerFactory.getLogger(DataSourceFactory.class);
 
-  public static final File ROOT_FOLDER = new File("");
+  public static File ROOT_FOLDER = new File("");
   public static String DB_NAME = "testdb";
   public static int PORT = 1527;
   public String db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
@@ -35,6 +35,10 @@ public class DataSourceFactory {
     SERVER_NAME = xmlConfig.getString("serverName");
     PORT = xmlConfig.getInt("portNumber");
     CREATE = xmlConfig.getBoolean("create");
+    String rootFolderString = xmlConfig.getString("rootFolder");
+    if(rootFolderString != null && !rootFolderString.isEmpty()){
+        ROOT_FOLDER = new File(rootFolderString);
+    }
     db = String.format("%s%s%s", ROOT_FOLDER.getAbsolutePath(), File.separator, DB_NAME);
     final String type = xmlConfig.getString("type").toUpperCase();
     initialize(Type.valueOf(type));
