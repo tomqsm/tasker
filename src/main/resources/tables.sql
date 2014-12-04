@@ -1,4 +1,3 @@
-drop view dependency;
 drop table chronicle;
 
 CREATE TABLE chronicle (
@@ -10,7 +9,6 @@ CREATE TABLE chronicle (
     inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 create index parentIdIdx on chronicle(parentId);
-create view dependency (p2id, c2id) as select p.id, c.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.parentId;
 INSERT INTO APP.CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) 
 	VALUES (0, 'esgo4', 'project for banking', '2014-12-03 09:54:57.042');
 INSERT INTO APP.CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) 
@@ -66,21 +64,10 @@ select p.id as "parent.id", p.TAG as "parent.tag", c.id as "child.id", c.TAG as 
 select p.id as "parent.id", p.TAG as "parent.tag", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.parentId and (c.ID=311 or c.ID = (select p.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.parentId and (c.ID=311)));
 select p.id as "parent.id", p.TAG as "parent.tag", p.parentId as "parent.parentId", c.parentId as "child.parentId", c.id as "child.id", c.TAG as "child.tag", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.parentId;
 select * from CHRONICLE where ID=304;
-create view dependency (p2id, c2id) as select p.id, c.id from CHRONICLE as p, CHRONICLE as c where p.ID=c.parentId;
-drop view dependency;
-select * from DEPENDENCY;
-select cid from DEPENDENCY where pid=304;
-SELECT COUNT(p2id) as children FROM DEPENDENCY WHERE (p2id = 3); --if cnt > 0, then it has cnt children
 -- get current
 select * from CHRONICLE;
 select id from CHRONICLE where ISCURRENT=true;
-SELECT COUNT(p2id) as children FROM DEPENDENCY WHERE (p2id = (select id from CHRONICLE where ISCURRENT=true)); --if cnt > 0, then it has cnt children
-SELECT C2ID FROM DEPENDENCY where P2ID=10;
 -- find children to id=10
-SELECT * FROM CHRONICLE WHERE ID = (SELECT C2ID FROM DEPENDENCY where P2ID=10);
 SELECT * FROM CHRONICLE WHERE PARENTID=10;
 -- find parent to id=10
-SELECT * FROM CHRONICLE WHERE ID = (SELECT P2ID FROM DEPENDENCY where C2ID=10);
 SELECT * FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=10);
--- find parent to id=9
-SELECT * FROM CHRONICLE WHERE ID = (SELECT P2ID FROM DEPENDENCY where C2ID=9);
