@@ -11,7 +11,6 @@ import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.logging.Level;
 import javax.sql.DataSource;
 import org.apache.commons.configuration.XMLConfiguration;
 import static org.fest.assertions.Assertions.assertThat;
@@ -267,15 +266,6 @@ public class ChronicleLineDaoTest {
         thrown.expect(NoRecordsInPoolException.class);
         final ChronicleLine lastRecord = chronicleDao.findLastRecord();
         assertThat(lastRecord).isNotNull();
-    }
-
-    @Test
-    public void extraConfigurationInTestingIsAvailable() throws SQLException, NoRecordsInPoolException {
-        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration_1.xml").getXMLConfiguration();
-        final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
-        final DataSource dataSource = dataSourceFactory.getDataSource();
-        chronicleDao = new ChronicleLineDao(dataSource);
-        assertThat(chronicleDao).isNotNull();
     }
 
 //    @Test
