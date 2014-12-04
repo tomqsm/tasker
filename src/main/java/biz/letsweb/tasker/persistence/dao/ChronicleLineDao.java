@@ -120,7 +120,7 @@ public class ChronicleLineDao {
     public List<ChronicleLine> findAllParentsToId(int id) {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         int currentId = id;
-        while ((currentId=findParentId(currentId)) > 0) {
+        while ((currentId=findParentId(currentId)) > NOT_EXISTING_MARKER) {
             final ChronicleLine foundParent = findRecordById(currentId);
             recordLines.add(foundParent);
         }
