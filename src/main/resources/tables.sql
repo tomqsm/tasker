@@ -1,12 +1,19 @@
 drop table chronicle;
+drop table comment;
 
 CREATE TABLE chronicle (
     id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,
     parentId INT DEFAULT 0,
-    iscurrent BOOLEAN DEFAULT false,
     tag VARCHAR(50) DEFAULT NULL,
     description VARCHAR(400) DEFAULT NULL,
     inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE comment (
+    id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT comment_pk PRIMARY KEY,
+    chronicleId INT,
+    description VARCHAR(400) DEFAULT NULL,
+    inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chronicleId_fk FOREIGN KEY (chronicleId) REFERENCES chronicle (id)
 );
 create index parentIdIdx on chronicle(parentId);
 INSERT INTO APP.CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) 
@@ -69,5 +76,10 @@ select * from CHRONICLE;
 select id from CHRONICLE where ISCURRENT=true;
 -- find children to id=10
 SELECT * FROM CHRONICLE WHERE PARENTID=10;
+-- find children to id=3
+SELECT * FROM CHRONICLE WHERE PARENTID=3;
 -- find parent to id=10
 SELECT * FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=10);
+-- find parent to id=8
+SELECT * FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=8);
+-- find current

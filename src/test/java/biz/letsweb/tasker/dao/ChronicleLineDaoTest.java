@@ -11,7 +11,6 @@ import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.configuration.XMLConfiguration;
 import static org.fest.assertions.Assertions.assertThat;
@@ -268,16 +267,15 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void canLoadDependencies() throws SQLException {
+    public void canLoadDependencies() throws SQLException, NoRecordsInPoolException {
         final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration_1.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         final DataSource dataSource = dataSourceFactory.getDataSource();
         chronicleDao = new ChronicleLineDao(dataSource);
-        final Map<DependencyModel, DependencyModel> dependencies = chronicleDao.findDependencyMap();
-        DependencyModel search = new DependencyModel();
-        search.setId(304);
-        System.out.println("found: " + dependencies.get(search) + " -- " +dependencies.get(search).getChildren());
-        
+        final ChronicleLine lastRecord = chronicleDao.findParentRecordToId(10);
+        final int parentId = chronicleDao.findParentId(1);
+//        assertThat(parentId).isEqualTo(lastRecord.getId());
+        log.info("{}", chronicleDao.findAllParentsToId(8));
 //        assertThat(findDependencyMap).isNotNull();
     }
 }

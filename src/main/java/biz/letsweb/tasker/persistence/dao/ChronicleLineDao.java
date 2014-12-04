@@ -4,7 +4,6 @@ import biz.letsweb.tasker.NoRecordsInPoolException;
 import biz.letsweb.tasker.UnsetIdException;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.databaseconnectivity.TableNames;
-import biz.letsweb.tasker.model.DependencyModel;
 import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import biz.letsweb.tasker.timing.DayBoundsTimestamp;
 import java.sql.Connection;
@@ -30,6 +29,7 @@ public class ChronicleLineDao {
 
     public static final Logger log = LoggerFactory.getLogger(ChronicleLineDao.class);
     private final DataSource ds;
+    private static final int NOT_EXISTING_MARKER = -1;
 
     public ChronicleLineDao(DataSource dataSource) {
         this.ds = dataSource;
@@ -95,6 +95,73 @@ public class ChronicleLineDao {
             initializeTablesUponException(ex);
         }
         return record;
+    }
+
+    public ChronicleLine findParentRecordToId(int id) {
+        final ChronicleLine record = new ChronicleLine();
+        final String currentSql = "SELECT * FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=?)";
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement(currentSql);) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                record.setId(rs.getInt("id"));
+                record.setTag(rs.getString("tag"));
+                record.setDescription(rs.getString("description"));
+                record.setTimestamp(rs.getTimestamp("inserted"));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return record;
+    }
+
+    public List<ChronicleLine> findAllParentsToId(int id) {
+        final List<ChronicleLine> recordLines = new ArrayList<>();
+        int currentId = id;
+        while ((currentId=findParentId(currentId)) > 0) {
+            final ChronicleLine foundParent = findRecordById(currentId);
+            recordLines.add(foundParent);
+        }
+        return recordLines;
+    }
+
+    public ChronicleLine findRecordById(int id) {
+        final ChronicleLine record = new ChronicleLine();
+        final String currentSql = "SELECT * FROM CHRONICLE WHERE ID = ?";
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement(currentSql);) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                record.setId(rs.getInt("id"));
+                record.setTag(rs.getString("tag"));
+                record.setDescription(rs.getString("description"));
+                record.setTimestamp(rs.getTimestamp("inserted"));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return record;
+    }
+
+    public int findParentId(int id) {
+        int parentId = NOT_EXISTING_MARKER;
+        final String currentSql = "SELECT id FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=?)";
+        try (Connection con = ds.getConnection();
+                PreparedStatement ps = con.prepareStatement(currentSql);) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                parentId = (rs.getInt("id"));
+            }
+            rs.close();
+        } catch (SQLException ex) {
+            initializeTablesUponException(ex);
+        }
+        return parentId;
     }
 
     public ChronicleLine findLastButOneRecord() {
@@ -224,37 +291,6 @@ public class ChronicleLineDao {
             initializeTablesUponException(ex);
         }
         return recordLines;
-    }
-
-    public Map<DependencyModel, DependencyModel> findDependencyMap() throws SQLException {
-        final Map<DependencyModel, DependencyModel> dependencies = new HashMap<>();
-        final List<DependencyModel> models = new ArrayList<>();
-        try (Connection con = ds.getConnection();
-                PreparedStatement ps = con.prepareStatement("select p.id as \"parent.id\", p.TAG as \"parent.tag\", c.id as \"child.id\", c.TAG as \"child.tag\", c.DESCRIPTION from CHRONICLE as p, CHRONICLE as c where p.ID=c.SUBTO");) {
-            final ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                DependencyModel pModel = new DependencyModel();
-                pModel.setId(rs.getInt("parent.id"));
-                pModel.setTag(rs.getString("parent.tag"));
-                DependencyModel cModel = new DependencyModel();
-                cModel.setId(rs.getInt("child.id"));
-                cModel.setTag(rs.getString("child.tag"));
-                if (dependencies.containsKey(pModel)) {
-                    final DependencyModel foundPModel = dependencies.get(pModel);
-                    foundPModel.addChild(cModel);
-                    dependencies.put(foundPModel, foundPModel);
-                } else {
-                    pModel.addChild(cModel);
-                    dependencies.put(pModel, pModel);
-                }
-                pModel.addChild(cModel);
-                models.add(pModel);
-            }
-            rs.close();
-        } catch (SQLException ex) {
-            initializeTablesUponException(ex);
-        }
-        return dependencies;
     }
 
     public List<ChronicleLine> findLastNRecordsTodayUpwards(int n) {
