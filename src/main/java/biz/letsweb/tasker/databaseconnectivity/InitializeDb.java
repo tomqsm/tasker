@@ -1,9 +1,12 @@
 package biz.letsweb.tasker.databaseconnectivity;
 
+import biz.letsweb.tasker.UninitialisedTablesException;
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
+import static biz.letsweb.tasker.persistence.dao.ChronicleLineDao.log;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLTransactionRollbackException;
 import javax.sql.DataSource;
 import org.apache.commons.configuration.SubnodeConfiguration;
@@ -22,19 +25,20 @@ public class InitializeDb {
     private final DataSource dataSource;
     private SubnodeConfiguration xmlConfig;
 
-    public InitializeDb(DataSource dataSource) {
-        initializeXmlConfiguration();
+    private InitializeDb(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    private void initializeXmlConfiguration() {
-        ConfigurationProvider configurationProvider
-                = new ConfigurationProvider("config/configuration.xml");
-        final XMLConfiguration xmlConfiguration = configurationProvider.getXMLConfiguration();
+    public InitializeDb(DataSource dataSource, XMLConfiguration xmlConfiguration) {
+        this(dataSource);
+        initializeXmlConfiguration(xmlConfiguration);
+    }
+
+    private void initializeXmlConfiguration(XMLConfiguration xmlConfiguration) {
         xmlConfig = xmlConfiguration.configurationAt("database/initializeTables");
     }
 
-    public Feedback createTables() throws SQLException {
+    public Feedback createTables() {
         Feedback feedback = Feedback.TABLES_FAILED;
         PreparedStatement ps = null;
         try (Connection connection = dataSource.getConnection()) {
@@ -43,10 +47,24 @@ public class InitializeDb {
                 ps.execute();
             }
             feedback = Feedback.TABLES_CREATED;
-        } catch (SQLTransactionRollbackException e) {
-            if (e.getMessage().contains(TableNames.CHRONICLE.name()) || e.getMessage().contains(TableNames.COMMENT.name())) {
-                feedback = Feedback.TABLES_EXISTED;
+        } catch (SQLException e) {
+            feedback = Feedback.TABLES_EXISTED;
+        }
+        log.warn("{}", feedback);
+        return feedback;
+    }
+
+    public Feedback runInserts() throws SQLException {
+        Feedback feedback = Feedback.RECORDS_INSERTING_FAILED;
+        PreparedStatement ps = null;
+        try (Connection connection = dataSource.getConnection()) {
+            for (Object createSql : xmlConfig.getList("insert")) {
+                ps = connection.prepareStatement(createSql.toString());
+                ps.execute();
             }
+            feedback = Feedback.RECORDS_INSERTED;
+        } catch (SQLTransactionRollbackException e) {
+            log.error("Error while inserting records: " + e.getMessage());
         } finally {
             if (ps != null) {
                 ps.close();
@@ -91,6 +109,11 @@ public class InitializeDb {
         /**
          * Method execution failed.
          */
-        TABLES_FAILED
+        TABLES_FAILED,
+        /**
+         *
+         */
+        RECORDS_INSERTED,
+        RECORDS_INSERTING_FAILED
     }
 }

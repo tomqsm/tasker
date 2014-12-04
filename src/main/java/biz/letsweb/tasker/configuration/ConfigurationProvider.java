@@ -15,7 +15,7 @@ public class ConfigurationProvider {
   private final Logger LOG = LoggerFactory.getLogger(ConfigurationProvider.class);
   private final XMLConfiguration config;
 
-  public ConfigurationProvider() {
+  private ConfigurationProvider() {
     config = new XMLConfiguration();
     config.setExpressionEngine(new XPathExpressionEngine());
     config.setAttributeSplittingDisabled(true);

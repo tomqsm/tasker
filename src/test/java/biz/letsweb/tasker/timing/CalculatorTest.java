@@ -2,6 +2,7 @@ package biz.letsweb.tasker.timing;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
 import biz.letsweb.tasker.UnexpectedOrderingException;
+import biz.letsweb.tasker.UninitialisedTablesException;
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
@@ -46,12 +47,12 @@ public class CalculatorTest {
         final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
-        setupDatabase(dataSourceFactory.getDataSource());
+        setupDatabase(dataSourceFactory.getDataSource(), configuration);
         calculator = new Calculator();
     }
 
-    private void setupDatabase(DataSource ds) throws SQLException {
-        initializeDb = new InitializeDb(ds);
+    private void setupDatabase(DataSource ds, XMLConfiguration configuration) throws SQLException {
+        initializeDb = new InitializeDb(ds, configuration);
         final InitializeDb.Feedback createTables = initializeDb.createTables();
         if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
             initializeDb.clearTables();
@@ -66,7 +67,7 @@ public class CalculatorTest {
      * Test of calculateDurations method, of class Calculator.
      */
     @Test
-    public void calculatesDurationsAcrossVaryingRecords() throws NoRecordsInPoolException, UnexpectedOrderingException {
+    public void calculatesDurationsAcrossVaryingRecords() throws NoRecordsInPoolException, UnexpectedOrderingException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
@@ -117,7 +118,7 @@ public class CalculatorTest {
      * summed up per each of them.
      */
     @Test
-    public void calculatesSumDurationsAccrossRepeatingRecords() throws NoRecordsInPoolException, UnexpectedOrderingException {
+    public void calculatesSumDurationsAccrossRepeatingRecords() throws NoRecordsInPoolException, UnexpectedOrderingException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
@@ -186,7 +187,7 @@ public class CalculatorTest {
      * much sense though.
      */
     @Test
-    public void calculatesDurationOnlyWithinReceivedCollection() throws NoRecordsInPoolException {
+    public void calculatesDurationOnlyWithinReceivedCollection() throws NoRecordsInPoolException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
@@ -234,7 +235,7 @@ public class CalculatorTest {
     }
 
     @Test
-    public void calaculateDurationHandlesDescAndAscIdOrderedLists() throws NoRecordsInPoolException {
+    public void calaculateDurationHandlesDescAndAscIdOrderedLists() throws NoRecordsInPoolException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0

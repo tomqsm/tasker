@@ -1,16 +1,17 @@
 package biz.letsweb.tasker.dao;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
+import biz.letsweb.tasker.UninitialisedTablesException;
 import biz.letsweb.tasker.UnsetIdException;
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
 import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
 import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
-import biz.letsweb.tasker.model.DependencyModel;
 import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
 import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.logging.Level;
 import javax.sql.DataSource;
 import org.apache.commons.configuration.XMLConfiguration;
 import static org.fest.assertions.Assertions.assertThat;
@@ -36,21 +37,23 @@ public class ChronicleLineDaoTest {
 
     private ChronicleLineDao chronicleDao;
     private InitializeDb initializeDb;
+    private DataSource ds;
 
     @Before
-    public void setUp() throws SQLException {
-        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
+    public void setUp() throws UninitialisedTablesException, SQLException {
+        XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
-        chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
-        setupDatabase(dataSourceFactory.getDataSource());
+        ds = dataSourceFactory.getDataSource();
+        chronicleDao = new ChronicleLineDao(ds);
+        setupDatabase(dataSourceFactory.getDataSource(), configuration);
     }
 
     @After
     public void tearDown() throws SQLException {
     }
 
-    private void setupDatabase(DataSource ds) throws SQLException {
-        initializeDb = new InitializeDb(ds);
+    private void setupDatabase(DataSource ds, XMLConfiguration configuration) throws UninitialisedTablesException, SQLException {
+        initializeDb = new InitializeDb(ds, configuration);
         final InitializeDb.Feedback createTables = initializeDb.createTables();
         if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
             initializeDb.clearTables();
@@ -58,7 +61,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void returnsEmptyListWhenNoRecordsPerDay() throws NoRecordsInPoolException, SQLException {
+    public void returnsEmptyListWhenNoRecordsPerDay() throws NoRecordsInPoolException, SQLException, UninitialisedTablesException {
         final List<ChronicleLine> allRecords = chronicleDao.findAllRecords();
         assertThat(allRecords).isNotNull();
         assertThat(allRecords).isEmpty();
@@ -76,7 +79,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void findNRecordsDescendingIsHavingExactNumberDescentingOrdered() throws NoRecordsInPoolException {
+    public void findNRecordsDescendingIsHavingExactNumberDescentingOrdered() throws NoRecordsInPoolException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
@@ -118,7 +121,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void findNNamingRecordsNonWorkOrNonBreak() throws NoRecordsInPoolException {
+    public void findNNamingRecordsNonWorkOrNonBreak() throws NoRecordsInPoolException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
@@ -160,7 +163,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void findNNamingRecordsNonWorkOrNonBreakWhenNonInDb() throws NoRecordsInPoolException {
+    public void findNNamingRecordsNonWorkOrNonBreakWhenNonInDb() throws NoRecordsInPoolException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         final List<ChronicleLine> last3Lines = chronicleDao.findLastNNamingRecordsDownwards(3);
@@ -168,7 +171,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void findsLastNRecordsByTag() throws NoRecordsInPoolException {
+    public void findsLastNRecordsByTag() throws NoRecordsInPoolException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
         // line 0
@@ -210,7 +213,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void requestMoreRecordsThanInDbGetsAsManyAsAvailable() {
+    public void requestMoreRecordsThanInDbGetsAsManyAsAvailable() throws UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         assertThat(rowsAtStart).isEqualTo(0);
 
@@ -260,7 +263,7 @@ public class ChronicleLineDaoTest {
     }
 
     @Test
-    public void restingLastRecordFromEmptyDbGetsEmptyObject() throws NoRecordsInPoolException {
+    public void restingLastRecordFromEmptyDbGetsEmptyObject() throws NoRecordsInPoolException, UninitialisedTablesException {
         thrown.expect(NoRecordsInPoolException.class);
         final ChronicleLine lastRecord = chronicleDao.findLastRecord();
         assertThat(lastRecord).isNotNull();
@@ -275,14 +278,30 @@ public class ChronicleLineDaoTest {
         assertThat(chronicleDao).isNotNull();
     }
 
-    @Test
-    public void findsParentsToId() {
-        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration_1.xml").getXMLConfiguration();
-        final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
-        final DataSource dataSource = dataSourceFactory.getDataSource();
-        chronicleDao = new ChronicleLineDao(dataSource);
-        final List<ChronicleLine> parents = chronicleDao.findAllParentsToId(8);
+//    @Test
+    public void findsParentsToId() throws SQLException, UninitialisedTablesException {
+        initializeDb.runInserts();
+        final List<ChronicleLine> parents = chronicleDao.findAllParentsToId(7);
         log.info("{}", parents);
         assertThat(parents.size()).isEqualTo(3);
+    }
+
+//    @Test
+    public void insertsARecordWithParentReference() throws UnsetIdException, NoRecordsInPoolException, SQLException, UninitialisedTablesException {
+        initializeDb.runInserts();
+        int countBefore = chronicleDao.findRecordsCount();
+        ChronicleLine chronicleLine = new ChronicleLine();
+        chronicleLine.setParentId(8);
+        chronicleLine.setTag("sub-internet");
+        chronicleLine.setDescription("sub-internet is back but crap");
+        chronicleDao.insertNewRecord(chronicleLine);
+        int chronicleLineId = chronicleDao.findLastRecord().getId();
+        chronicleLine.setId(chronicleLineId);
+        final List<ChronicleLine> parents = chronicleDao.findAllParentsToId(chronicleLineId);
+        log.info("{}", parents);
+        assertThat(parents.size()).isEqualTo(4);
+        chronicleDao.deleteRecord(chronicleLine);
+        int countAfter = chronicleDao.findRecordsCount();
+        assertThat(countBefore).isEqualTo(countAfter);
     }
 }

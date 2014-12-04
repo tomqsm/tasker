@@ -45,7 +45,7 @@ public class ConfigurationProviderTest {
      */
     @Test
     public void testGetXMLConfiguration() {
-        ConfigurationProvider instance = new ConfigurationProvider();
+        ConfigurationProvider instance = new ConfigurationProvider("src/test/resources/configuration.xml");
         assertThat(instance).isNotNull();
         XMLConfiguration result = instance.getXMLConfiguration();
         assertThat(result).isNotNull();

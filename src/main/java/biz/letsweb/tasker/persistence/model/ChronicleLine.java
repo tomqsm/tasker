@@ -14,6 +14,7 @@ public class ChronicleLine {
 
     private int id;
     private int count;
+    private int parentId;
     private String tag;
     private String description = "";
     private Timestamp timestamp;
@@ -112,6 +113,14 @@ public class ChronicleLine {
             otherLines = new ArrayList<>();
         }
         otherLines.add(commentLine);
+    }
+
+    public int getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(int parentId) {
+        this.parentId = parentId;
     }
 
     @Override

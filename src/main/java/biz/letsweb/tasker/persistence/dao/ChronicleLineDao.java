@@ -1,8 +1,8 @@
 package biz.letsweb.tasker.persistence.dao;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
+import biz.letsweb.tasker.UninitialisedTablesException;
 import biz.letsweb.tasker.UnsetIdException;
-import biz.letsweb.tasker.databaseconnectivity.InitializeDb;
 import biz.letsweb.tasker.databaseconnectivity.TableNames;
 import biz.letsweb.tasker.persistence.model.ChronicleLine;
 import biz.letsweb.tasker.timing.DayBoundsTimestamp;
@@ -35,7 +35,7 @@ public class ChronicleLineDao {
         this.ds = dataSource;
     }
 
-    public ChronicleLine findLastRecord() throws NoRecordsInPoolException {
+    public ChronicleLine findLastRecord() throws NoRecordsInPoolException, UninitialisedTablesException {
         ChronicleLine record = null;
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where id=(select max(id) from chronicle)";
         try (Connection con = ds.getConnection();
@@ -50,7 +50,7 @@ public class ChronicleLineDao {
                 record.setTimestamp(currentResultSet.getTimestamp("inserted"));
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         if (record == null) {
             throw new NoRecordsInPoolException("Can't return 'last record' because no records in database.");
@@ -58,7 +58,7 @@ public class ChronicleLineDao {
         return record;
     }
 
-    public List<String> findDistictiveTags() throws NoRecordsInPoolException {
+    public List<String> findDistictiveTags() throws NoRecordsInPoolException, UninitialisedTablesException {
         List<String> tags = new ArrayList<>();
         final String currentSql = "select distinct tag from chronicle";
         try (Connection con = ds.getConnection();
@@ -68,7 +68,7 @@ public class ChronicleLineDao {
                 tags.add(currentResultSet.getString("tag"));
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         if (tags.isEmpty()) {
             throw new NoRecordsInPoolException("No tags in database.");
@@ -76,7 +76,7 @@ public class ChronicleLineDao {
         return tags;
     }
 
-    public ChronicleLine findRecordByCount(int cnt) {
+    public ChronicleLine findRecordByCount(int cnt) throws UninitialisedTablesException {
         final ChronicleLine record = new ChronicleLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT = ?";
         try (Connection con = ds.getConnection();
@@ -92,12 +92,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return record;
     }
 
-    public ChronicleLine findParentRecordToId(int id) {
+    public ChronicleLine findParentRecordToId(int id) throws UninitialisedTablesException {
         final ChronicleLine record = new ChronicleLine();
         final String currentSql = "SELECT * FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=?)";
         try (Connection con = ds.getConnection();
@@ -112,22 +112,22 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return record;
     }
 
-    public List<ChronicleLine> findAllParentsToId(int id) {
+    public List<ChronicleLine> findAllParentsToId(int id) throws UninitialisedTablesException {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         int currentId = id;
-        while ((currentId=findParentId(currentId)) > NOT_EXISTING_MARKER) {
+        while ((currentId = findParentId(currentId)) > NOT_EXISTING_MARKER) {
             final ChronicleLine foundParent = findRecordById(currentId);
             recordLines.add(foundParent);
         }
         return recordLines;
     }
 
-    public ChronicleLine findRecordById(int id) {
+    public ChronicleLine findRecordById(int id) throws UninitialisedTablesException {
         final ChronicleLine record = new ChronicleLine();
         final String currentSql = "SELECT * FROM CHRONICLE WHERE ID = ?";
         try (Connection con = ds.getConnection();
@@ -142,12 +142,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return record;
     }
 
-    public int findParentId(int id) {
+    public int findParentId(int id) throws UninitialisedTablesException {
         int parentId = NOT_EXISTING_MARKER;
         final String currentSql = "SELECT id FROM CHRONICLE WHERE ID = (select PARENTID from CHRONICLE WHERE ID=?)";
         try (Connection con = ds.getConnection();
@@ -159,12 +159,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return parentId;
     }
 
-    public ChronicleLine findLastButOneRecord() {
+    public ChronicleLine findLastButOneRecord() throws UninitialisedTablesException {
         //find current task
         final ChronicleLine record = new ChronicleLine();
         final String currentSql = "select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - 2 order by CNT desc offset 1 rows";
@@ -178,12 +178,12 @@ public class ChronicleLineDao {
                 record.setTimestamp(rs.getTimestamp("inserted"));
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return record;
     }
 
-    public List<ChronicleLine> findAllRecords() {
+    public List<ChronicleLine> findAllRecords() throws UninitialisedTablesException {
         //find current task
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
@@ -198,12 +198,12 @@ public class ChronicleLineDao {
                 recordLines.add(currentEntry);
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findLastNRecordsDownwards(int n) {
+    public List<ChronicleLine> findLastNRecordsDownwards(int n) throws UninitialisedTablesException {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT asc");) {
@@ -220,12 +220,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findLastNRecordsUpwards(int n) {
+    public List<ChronicleLine> findLastNRecordsUpwards(int n) throws UninitialisedTablesException {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where CNT > (select count (*) from chronicle) - ? order by CNT desc");) {
@@ -242,12 +242,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findLastNRecordsByTagUpwards(String tag, int n) {
+    public List<ChronicleLine> findLastNRecordsByTagUpwards(String tag, int n) throws UninitialisedTablesException {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag=?) AS CR where CNT > (select count (*) from chronicle where tag=?)-? order by CNT desc");) {
@@ -266,12 +266,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findLastNNamingRecordsDownwards(int n) {
+    public List<ChronicleLine> findLastNNamingRecordsDownwards(int n) throws UninitialisedTablesException {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where tag!='work' and tag!='break') AS CR where CNT > (select count (*) from chronicle where tag!='work' and tag!='break')-? order by CNT asc");) {
@@ -288,12 +288,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findLastNRecordsTodayUpwards(int n) {
+    public List<ChronicleLine> findLastNRecordsTodayUpwards(int n) throws UninitialisedTablesException {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
@@ -313,12 +313,12 @@ public class ChronicleLineDao {
             }
             rs.close();
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findAllRecordsWithCount() {
+    public List<ChronicleLine> findAllRecordsWithCount() throws UninitialisedTablesException {
         final List<ChronicleLine> recordLines = new ArrayList<>();
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR");
@@ -333,12 +333,12 @@ public class ChronicleLineDao {
                 recordLines.add(entry);
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    public List<ChronicleLine> findTodaysRecords() {
+    public List<ChronicleLine> findTodaysRecords() throws UninitialisedTablesException {
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final List<ChronicleLine> recordLines = new ArrayList<>();
         final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle where inserted between '%s' and '%s') AS CR",
@@ -356,28 +356,23 @@ public class ChronicleLineDao {
                 recordLines.add(entry);
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return recordLines;
     }
 
-    private void initializeTablesUponException(SQLException ex) {
-        if ((ex instanceof SQLSyntaxErrorException)
-                && (ex.getMessage().contains(TableNames.CHRONICLE.name()) || ex.getMessage().contains(
-                        TableNames.COMMENT.name()))) {
-            InitializeDb initializeTables = new InitializeDb(ds);
-            log.warn("Detected not tables existed. Creates automatically.");
-            try {
-                initializeTables.createTables();
-            } catch (SQLException ex1) {
-                log.error("Application couldn't create tables. ", ex1);
-            }
+    private void propagateTablesUninitialisedException(SQLException ex) throws UninitialisedTablesException {
+        boolean notReachableClient = (ex instanceof SQLSyntaxErrorException) && (ex.getMessage().contains(TableNames.CHRONICLE.name()) || ex.getMessage().contains(TableNames.COMMENT.name()));
+        boolean notReachableEmbedded = (ex instanceof SQLException) && ex.getMessage().contains("Failed to start database");
+        if (notReachableClient || notReachableEmbedded) {
+            log.warn("Detected no tables exists.");
+            throw new UninitialisedTablesException();
         } else {
             log.error("Application couldn't get a connection from the pool. ", ex);
         }
     }
 
-    public Map<String, Duration> findDurationsOfTodaysRecords() {
+    public Map<String, Duration> findDurationsOfTodaysRecords() throws UninitialisedTablesException {
         final Map<String, Duration> durations = new HashMap<>();
         final DayBoundsTimestamp boundsTimestamp = new DayBoundsTimestamp();
         final String sql = String.format("select * from (select ROW_NUMBER() OVER() as CNT, chronicle.* from chronicle) AS CR where inserted between '%s' and '%s'",
@@ -400,12 +395,12 @@ public class ChronicleLineDao {
                 }
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return durations;
     }
 
-    public int findRecordsCount() {
+    public int findRecordsCount() throws UninitialisedTablesException {
         int count = -1;
         final String sql = "select count(*) as cnt from chronicle";
         try (Connection con = ds.getConnection();
@@ -415,26 +410,27 @@ public class ChronicleLineDao {
                 count = rs.getInt("cnt");
             }
         } catch (SQLException ex) {
-            initializeTablesUponException(ex);
+            propagateTablesUninitialisedException(ex);
         }
         return count;
     }
 
     public int insertNewRecord(ChronicleLine recordLine) {
         int rowNr = 0;
-        String sql = "insert into chronicle (tag, description) values (?, ?)";
+        String sql = "insert into chronicle (parentId, tag, description) values (?, ?, ?)";
         boolean hasInserted = false;
         Timestamp timestamp = recordLine.getTimestamp();
         if (timestamp != null) {
-            sql = "insert into chronicle (tag, description, inserted) values (?, ?, ?)";
+            sql = "insert into chronicle (parentId, tag, description, inserted) values (?, ?, ?, ?)";
             hasInserted = true;
         }
         try (Connection con = ds.getConnection();
                 PreparedStatement ps = con.prepareStatement(sql);) {
-            ps.setString(1, recordLine.getTag());
-            ps.setString(2, recordLine.getDescription());
+            ps.setInt(1, recordLine.getParentId());
+            ps.setString(2, recordLine.getTag());
+            ps.setString(3, recordLine.getDescription());
             if (hasInserted) {
-                ps.setTimestamp(3, timestamp);
+                ps.setTimestamp(4, timestamp);
             }
             rowNr = ps.executeUpdate();
         } catch (SQLException ex) {

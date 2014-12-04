@@ -44,6 +44,7 @@ public class TemplatingTest {
     public static final Logger log = LoggerFactory.getLogger(TemplatingTest.class);
     private InitializeDb initializeDb;
     private ChronicleLineDao chronicleDao;
+    private XMLConfiguration configuration;
     private Calculator calculator;
 
     public TemplatingTest() {
@@ -51,7 +52,7 @@ public class TemplatingTest {
 
     @Before
     public void setUp() throws SQLException {
-        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
+        configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
         setupDatabase(dataSourceFactory.getDataSource());
@@ -63,7 +64,7 @@ public class TemplatingTest {
     }
 
     private void setupDatabase(DataSource ds) throws SQLException {
-        initializeDb = new InitializeDb(ds);
+        initializeDb = new InitializeDb(ds, configuration);
         final InitializeDb.Feedback createTables = initializeDb.createTables();
         if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
             initializeDb.clearTables();

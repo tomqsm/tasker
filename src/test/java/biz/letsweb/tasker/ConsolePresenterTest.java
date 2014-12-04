@@ -34,7 +34,7 @@ public class ConsolePresenterTest {
         final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
-        initializeDb = new InitializeDb(dataSourceFactory.getDataSource());
+        initializeDb = new InitializeDb(dataSourceFactory.getDataSource(), configuration);
         final InitializeDb.Feedback createTables = initializeDb.createTables();
         if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
             initializeDb.clearTables();
@@ -47,7 +47,7 @@ public class ConsolePresenterTest {
     }
 
     @Test
-    public void addsThreeRecordsAndFindsThenAsLastThree() throws NoRecordsInPoolException, UnsetIdException {
+    public void addsThreeRecordsAndFindsThenAsLastThree() throws NoRecordsInPoolException, UnsetIdException, UninitialisedTablesException {
         int rowsAtStart = chronicleDao.findRecordsCount();
         ChronicleLine line0 = new ChronicleLine();
         line0.setTag("work0");
@@ -81,7 +81,8 @@ public class ConsolePresenterTest {
 
     @Test
     public void whenRecordPoolIsEmptyExceptionsIsThrown() throws NoRecordsInPoolException,
-            SQLException {
+            SQLException,
+            UninitialisedTablesException {
         final InitializeDb.Feedback createTables = initializeDb.createTables();
         if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
             initializeDb.clearTables();
@@ -91,7 +92,7 @@ public class ConsolePresenterTest {
     }
 
     @Test
-    public void testThatItOrdersRecentSummative() throws NoRecordsInPoolException, SQLException {
+    public void testThatItOrdersRecentSummative() throws NoRecordsInPoolException, SQLException, UninitialisedTablesException {
         thrown.expect(NoRecordsInPoolException.class);
         final Map<String, Duration> sums = presenter.displayDurationSummativePerTag(chronicleDao.findAllRecords());
     }
@@ -103,7 +104,7 @@ public class ConsolePresenterTest {
     }
 
     @Test
-    public void whenThereAreNRecordsForTodayItReturnsNRecords() throws NoRecordsInPoolException, UnsetIdException {
+    public void whenThereAreNRecordsForTodayItReturnsNRecords() throws NoRecordsInPoolException, UnsetIdException, UninitialisedTablesException {
         DateTime dateTime = new DateTime();
         int rowsAtStart = chronicleDao.findRecordsCount();
         ChronicleLine line0 = new ChronicleLine();

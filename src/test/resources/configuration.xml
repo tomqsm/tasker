@@ -4,20 +4,39 @@
         <user>tumcyk</user>
         <password>mypass</password>
         <databaseName>testdb</databaseName>
+        <rootFolder>c:\Users\toks\Documents\Tasker-1.0-SNAPSHOT\</rootFolder>
         <serverName>localhost</serverName>
         <portNumber>1527</portNumber>
         <create>true</create>
-        <type>client</type>
+        <type>embedded</type>
         <initializeTables>
-            <initializeTable>CREATE TABLE chronicle (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,tag VARCHAR(50) DEFAULT NULL,description VARCHAR(400) DEFAULT NULL,inserted TIMESTAMP NOT NULL WITH DEFAULT CURRENT_TIMESTAMP)</initializeTable>
+            <initializeTable>
+                CREATE TABLE chronicle (
+                id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT chron_pk PRIMARY KEY,
+                parentId INT DEFAULT 0,
+                tag VARCHAR(50) DEFAULT NULL,
+                description VARCHAR(400) DEFAULT NULL,
+                inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            </initializeTable>
             <initializeTable>CREATE TABLE comment (id INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1) CONSTRAINT comment_pk PRIMARY KEY, chronicleId INT, description VARCHAR(400) DEFAULT NULL, inserted TIMESTAMP DEFAULT CURRENT_TIMESTAMP, CONSTRAINT chronicleId_fk FOREIGN KEY (chronicleId) REFERENCES chronicle (id))</initializeTable>
             <clearTable>delete from comment</clearTable>
             <clearTable>delete from chronicle</clearTable>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (0, 'esgo4', 'project for banking', '2014-12-03 09:54:57.042')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (1, 'story', 'bug fixing', '2014-12-03 09:58:36.365')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (10, 'fault123423', 'insert optimisation properties', '2014-12-03 09:59:12.755')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (0, 'letsweb', 'own RandD', '2014-12-03 09:59:35.235')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (4, 'story - tasker', 'an application for monitoring work time', '2014-12-03 10:00:14.552')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (5, 'task improving sqls', 'self-linking table', '2014-12-03 10:00:57.878')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (3, 'blocker', 'no internet connection', '2014-12-03 10:01:20.208')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (3, 'internat is back', 'intervention of an IT team', '2014-12-03 10:29:44.614')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (3, 'internet blocked again', 'no internet connection, can''t work', '2014-12-03 11:52:49.958')</insert>
+            <insert>INSERT INTO CHRONICLE (PARENTID, TAG, DESCRIPTION, INSERTED) VALUES (1, 'story1', 'refrev', '2014-12-03 11:54:27.801')</insert>
         </initializeTables>
     </database>
 <properties>
         <color>blue</color>
         <logging>${log.level}</logging>
-        <time>Wed Dec 03 13:17:10 CET 2014</time>
+        <time>Thu Dec 04 17:30:10 CET 2014</time>
     </properties>
 </config>

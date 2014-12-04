@@ -49,6 +49,7 @@ public class DataSourceFactory {
 //  }
 
   private void initialize(Type type) {
+      log.info("DB: {}", ROOT_FOLDER.getAbsolutePath());
     if (type == Type.CLIENT) {
       dataSource = initializeClient();
     } else if (type == Type.EMBEDDED) {
