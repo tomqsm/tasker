@@ -1,6 +1,6 @@
 package biz.letsweb.tasker.view;
 
-import biz.letsweb.tasker.response.JsonMarshalling;
+import biz.letsweb.tasker.response.json.JsonMarshalling;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

@@ -103,7 +103,6 @@ public class TemplatingTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-
     @Test
     public void consumeMapInTemplate() throws Exception {
         int rowsAtStart = chronicleDao.findRecordsCount();

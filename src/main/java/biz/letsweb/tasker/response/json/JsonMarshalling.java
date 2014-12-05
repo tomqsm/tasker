@@ -1,4 +1,4 @@
-package biz.letsweb.tasker.response;
+package biz.letsweb.tasker.response.json;
 
 import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import java.io.IOException;

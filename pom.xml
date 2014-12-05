@@ -125,6 +125,11 @@
             <version>1.1</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <artifactId>groovy-all</artifactId>
+            <groupId>org.codehaus.groovy</groupId>
+            <version>2.0.5</version>
+        </dependency>
     </dependencies>
     <build>            
         <filters>
@@ -191,7 +196,7 @@
                         </configuration>
                         <id>compileId</id>
                     </execution>
-                    <execution>
+<!--                    <execution>
                         <goals>
                             <goal>compile</goal>
                             <goal>testCompile</goal>
@@ -200,25 +205,51 @@
                             <compilerId>groovy-eclipse-compiler</compilerId>
                         </configuration>
                         <id>testCompileId</id>
-                    </execution>
+                    </execution>-->
                 </executions>
-                <dependencies>
+<!--                <dependencies>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-eclipse-compiler</artifactId>
                         <version>2.6.0-01</version>
                     </dependency>
-                </dependencies>
+                </dependencies>-->
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
             </plugin>
-            <plugin>
+<!--            <plugin>
                 <artifactId>groovy-eclipse-compiler</artifactId>
                 <groupId>org.codehaus.groovy</groupId>
                 <version>2.6.0-01</version>
                 <extensions>true</extensions>
+            </plugin>-->
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <source>src/main/groovy</source>
+                    <providerSelection>2.0</providerSelection>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.groovy</groupId>
+                        <artifactId>groovy-all</artifactId>
+                        <version>2.0.0</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generateStubs</goal>
+                            <goal>compile</goal>
+                            <goal>generateTestStubs</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
