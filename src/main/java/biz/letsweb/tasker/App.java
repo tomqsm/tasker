@@ -5,13 +5,11 @@ import biz.letsweb.tasker.db.DataSourceFactory;
 import biz.letsweb.tasker.chronicle.dao.ChronicleLineDao;
 import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import biz.letsweb.tasker.db.InitializeDb;
-import biz.letsweb.tasker.response.json.Jsoner;
 import biz.letsweb.tasker.templating.Templating;
 import biz.letsweb.tasker.timing.Calculator;
 import freemarker.template.TemplateException;
 import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.cli.BasicParser;
@@ -50,7 +48,6 @@ public class App {
         } catch (ParseException ex) {
             log.error("Error while parsing options for the command line arguments. ", ex);
         }
-        Jsoner jsoner = new Jsoner();
         
         final ChronicleLineDao chronicleLineDao = new ChronicleLineDao(dataSource);
         ChronicleLine currentChronicle = new ChronicleLine();
