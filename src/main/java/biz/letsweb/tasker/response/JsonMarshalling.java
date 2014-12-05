@@ -1,7 +1,6 @@
-package biz.letsweb.tasker.view;
+package biz.letsweb.tasker.response;
 
-import biz.letsweb.tasker.model.ConsoleViewModel;
-import biz.letsweb.tasker.persistence.model.ChronicleLine;
+import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import java.io.IOException;
 import java.sql.Timestamp;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -19,15 +18,18 @@ public class JsonMarshalling {
     public static final Logger log = LoggerFactory.getLogger(JsonMarshalling.class);
 
     public void marshall() throws IOException{
-        ConsoleViewModel consoleViewModel = new ConsoleViewModel();
-        consoleViewModel.setChronicleRecordLine(new ChronicleLine(1, 1, "work", "desc", new Timestamp(System.currentTimeMillis())));
-        consoleViewModel.setDuration(Duration.ZERO);
-        consoleViewModel.setTotalDuration(Duration.ZERO);
+        ChronicleLine line = new ChronicleLine();
+        line.setId(1);
+        line.setParentId(0);
+        line.setDescription("opis");
+        line.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        line.setDuration(Duration.ZERO);
+        line.setTotalDuration(Duration.ZERO);
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
         objectMapper.configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, true);
         objectMapper.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, false);
-        objectMapper.writeValue(System.out, consoleViewModel);
+        objectMapper.writeValue(System.out, line);
     }
 
 }

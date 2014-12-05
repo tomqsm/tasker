@@ -4,7 +4,7 @@
         <user>tumcyk</user>
         <password>mypass</password>
         <databaseName>testdb</databaseName>
-        <rootFolder>c:\Users\toks\Documents\Tasker-1.0-SNAPSHOT\</rootFolder>
+        <rootFolder/>
         <serverName>localhost</serverName>
         <portNumber>1527</portNumber>
         <create>true</create>
@@ -37,6 +37,6 @@
 <properties>
         <color>blue</color>
         <logging>${log.level}</logging>
-        <time>Thu Dec 04 17:32:57 CET 2014</time>
+        <time>Fri Dec 05 14:33:08 CET 2014</time>
     </properties>
 </config>

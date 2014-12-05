@@ -22,9 +22,9 @@ public class ConfigurationProvider {
     config.setDelimiterParsingDisabled(true);
   }
 
-  public ConfigurationProvider(final String fileName) {
+  public ConfigurationProvider(final String xmlConfigFilePath) {
     this();
-    initializeWithFileName(fileName);
+    initializeWithFileName(xmlConfigFilePath);
   }
 
   private void initializeWithFileName(String fileName) {

@@ -1,12 +1,8 @@
-package biz.letsweb.tasker.databaseconnectivity;
+package biz.letsweb.tasker.db;
 
-import biz.letsweb.tasker.UninitialisedTablesException;
-import biz.letsweb.tasker.configuration.ConfigurationProvider;
-import static biz.letsweb.tasker.persistence.dao.ChronicleLineDao.log;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
 import java.sql.SQLTransactionRollbackException;
 import javax.sql.DataSource;
 import org.apache.commons.configuration.SubnodeConfiguration;

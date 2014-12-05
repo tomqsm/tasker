@@ -1,6 +1,9 @@
 package biz.letsweb.tasker;
 
-import biz.letsweb.tasker.databaseconnectivity.LocationCheckDb;
+import biz.letsweb.tasker.configuration.ConfigurationProvider;
+import biz.letsweb.tasker.db.DataSourceFactory;
+import biz.letsweb.tasker.db.DbFileOperations;
+import biz.letsweb.tasker.db.InitializeDb;
 import java.sql.SQLException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,43 +17,55 @@ import org.junit.Test;
  */
 public class EmbeddedDbTest {
 
-  private final LocationCheckDb checkDB = new LocationCheckDb();
-  private final DeleteDB deleteDB = new DeleteDB();
+    private static DbFileOperations dbFileOperations;
 
-  public EmbeddedDbTest() {}
-
-  @BeforeClass
-  public static void setUpClass() {
-
-  }
-
-  @AfterClass
-  public static void tearDownClass() {}
-
-  @Before
-  public void setUp() throws ClassNotFoundException, SQLException {
-    if (!checkDB.dbDirectoryExists()) {
-      // createDB.createDb();
-      System.out.println("Created database: " + checkDB.getDbPath());
-    } else {
-      System.out.println("WARNING: Test didn't create database: " + checkDB.getDbPath());
+    public EmbeddedDbTest() {
     }
-  }
 
-  @After
-  public void tearDown() {
-    if (checkDB.dbDirectoryExists() && deleteDB.deleteDb()) {
-      System.out.println("Deleted database: " + checkDB.getDbPath());
-    } else {
-      System.out.println("WARNING: Test didn't delete database: " + checkDB.getDbPath());
+    @BeforeClass
+    public static void setUpClass() {
+        final ConfigurationProvider provider = new ConfigurationProvider("src/test/resources/configuration.xml");
+        dbFileOperations = DbFileOperations.getInstance(provider.getXMLConfiguration());
+        final DataSourceFactory factory = new DataSourceFactory(provider.getXMLConfiguration());
+        final InitializeDb initializeDb = new InitializeDb(factory.getDataSource(), provider.getXMLConfiguration());
+        if (!dbFileOperations.dbDirectoryExists()) {
+            System.out.println("Before creating database: " + dbFileOperations.getDbDirectoryPath());
+            initializeDb.createTables();
+            System.out.println("Created database: " + dbFileOperations.getDbDirectoryPath());
+        } else {
+            System.out.println("WARNING: Test didn't create database: " + dbFileOperations.getDbDirectoryPath());
+        }
     }
-  }
 
-  @Test
-  public void testCreateDb() throws ClassNotFoundException, SQLException {
-    System.out.println("running");
-    // createDB.loadDb();
-    // createDB.emptyDb();
-  }
+    @AfterClass
+    public static void tearDownClass() {
+        final boolean dbDirectoryExists = dbFileOperations.dbDirectoryExists();
+        final boolean deleteDb = dbFileOperations.deleteDb();
+        System.out.println("db dir exists?: " + dbDirectoryExists);
+        System.out.println("db dir deleted?: " + deleteDb);
+        if (dbDirectoryExists && deleteDb) {
+            System.out.println("Deleted database: " + dbFileOperations.getDbDirectoryPath());
+        } else {
+            System.out.println("WARNING: Test didn't delete database: " + dbFileOperations.getDbDirectoryPath());
+        }
+    }
+
+    @Before
+    public void setUp() throws ClassNotFoundException, SQLException {
+
+    }
+
+    @After
+    public void tearDown() {
+
+    }
+
+    @Test
+    public void testCreateDb() {
+        System.out.println("running");
+        System.out.println(dbFileOperations.getDbDirectoryPath());
+        // createDB.loadDb();
+        // createDB.emptyDb();
+    }
 
 }

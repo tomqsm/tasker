@@ -1,4 +1,4 @@
-package biz.letsweb.tasker.persistence.model;
+package biz.letsweb.tasker.chronicle.model;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;

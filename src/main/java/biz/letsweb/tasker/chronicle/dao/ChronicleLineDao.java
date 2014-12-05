@@ -1,10 +1,9 @@
-package biz.letsweb.tasker.persistence.dao;
+package biz.letsweb.tasker.chronicle.dao;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
 import biz.letsweb.tasker.UninitialisedTablesException;
 import biz.letsweb.tasker.UnsetIdException;
-import biz.letsweb.tasker.databaseconnectivity.TableNames;
-import biz.letsweb.tasker.persistence.model.ChronicleLine;
+import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import biz.letsweb.tasker.timing.DayBoundsTimestamp;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -362,7 +361,7 @@ public class ChronicleLineDao {
     }
 
     private void propagateTablesUninitialisedException(SQLException ex) throws UninitialisedTablesException {
-        boolean notReachableClient = (ex instanceof SQLSyntaxErrorException) && (ex.getMessage().contains(TableNames.CHRONICLE.name()) || ex.getMessage().contains(TableNames.COMMENT.name()));
+        boolean notReachableClient = (ex instanceof SQLSyntaxErrorException) && (ex.getMessage().contains("CHRONICLE") || ex.getMessage().contains("COMMENT"));
         boolean notReachableEmbedded = (ex instanceof SQLException) && ex.getMessage().contains("Failed to start database");
         if (notReachableClient || notReachableEmbedded) {
             log.warn("Detected no tables exists.");

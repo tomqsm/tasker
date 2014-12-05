@@ -1,9 +1,9 @@
 package biz.letsweb.tasker;
 
 import biz.letsweb.tasker.configuration.ConfigurationProvider;
-import biz.letsweb.tasker.databaseconnectivity.DataSourceFactory;
-import biz.letsweb.tasker.persistence.dao.ChronicleLineDao;
-import biz.letsweb.tasker.persistence.model.ChronicleLine;
+import biz.letsweb.tasker.db.DataSourceFactory;
+import biz.letsweb.tasker.chronicle.dao.ChronicleLineDao;
+import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import biz.letsweb.tasker.templating.Templating;
 import biz.letsweb.tasker.timing.Calculator;
 import java.util.List;

@@ -1,7 +1,7 @@
 package biz.letsweb.tasker.timing;
 
 import biz.letsweb.tasker.NoRecordsInPoolException;
-import biz.letsweb.tasker.persistence.model.ChronicleLine;
+import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;

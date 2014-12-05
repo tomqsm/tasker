@@ -1,6 +1,6 @@
 package biz.letsweb.tasker;
 
-import biz.letsweb.tasker.persistence.model.ChronicleLine;
+import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
