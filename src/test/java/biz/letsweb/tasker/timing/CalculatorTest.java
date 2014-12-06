@@ -34,12 +34,12 @@ public class CalculatorTest {
 
     public static final Logger log = LoggerFactory.getLogger(CalculatorTest.class);
 
-    private Calculator calculator;
+    private DurationsCalculator calculator;
     private ChronicleLineDao chronicleDao;
     private InitializeDb initializeDb;
 
     public CalculatorTest() {
-        calculator = new Calculator();
+        calculator = new DurationsCalculator();
     }
 
     @Before
@@ -48,7 +48,7 @@ public class CalculatorTest {
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
         setupDatabase(dataSourceFactory.getDataSource(), configuration);
-        calculator = new Calculator();
+        calculator = new DurationsCalculator();
     }
 
     private void setupDatabase(DataSource ds, XMLConfiguration configuration) throws SQLException {

@@ -23,7 +23,7 @@ public class EmbeddedDbTest {
     }
 
     @BeforeClass
-    public static void setUpClass() {
+    public static void setUpClass() throws SQLException {
         final ConfigurationProvider provider = new ConfigurationProvider("src/test/resources/configuration.xml");
         dbFileOperations = DbFileOperations.getInstance(provider.getXMLConfiguration());
         final DataSourceFactory factory = new DataSourceFactory(provider.getXMLConfiguration());
@@ -34,6 +34,7 @@ public class EmbeddedDbTest {
             System.out.println("Created database: " + dbFileOperations.getDbDirectoryPath());
         } else {
             System.out.println("WARNING: Test didn't create database: " + dbFileOperations.getDbDirectoryPath());
+            initializeDb.clearTables();
         }
     }
 

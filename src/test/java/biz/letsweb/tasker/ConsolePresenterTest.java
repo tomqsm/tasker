@@ -5,16 +5,16 @@ import biz.letsweb.tasker.db.DataSourceFactory;
 import biz.letsweb.tasker.db.InitializeDb;
 import biz.letsweb.tasker.chronicle.dao.ChronicleLineDao;
 import biz.letsweb.tasker.chronicle.model.ChronicleLine;
+import biz.letsweb.tasker.db.DbFileOperations;
+import biz.letsweb.tasker.timing.DurationsCalculator;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.configuration.XMLConfiguration;
 import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
-import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,21 +25,32 @@ import org.junit.rules.ExpectedException;
  */
 public class ConsolePresenterTest {
 
-    private ConsolePresenter presenter;
-    private ChronicleLineDao chronicleDao;
-    private InitializeDb initializeDb;
+    private static ChronicleLineDao chronicleDao;
+    private static InitializeDb initializeDb;
+    private static DbFileOperations dbFileOperations;
+    private static DurationsCalculator presenter;
+
+    @BeforeClass
+    public static void setUpClass() throws SQLException {
+        final ConfigurationProvider provider = new ConfigurationProvider("src/test/resources/configuration.xml");
+        dbFileOperations = DbFileOperations.getInstance(provider.getXMLConfiguration());
+        final DataSourceFactory factory = new DataSourceFactory(provider.getXMLConfiguration());
+        initializeDb = new InitializeDb(factory.getDataSource(), provider.getXMLConfiguration());
+        chronicleDao = new ChronicleLineDao(factory.getDataSource());
+        presenter = new DurationsCalculator();
+        if (!dbFileOperations.dbDirectoryExists()) {
+            System.out.println("Before creating database: " + dbFileOperations.getDbDirectoryPath());
+            initializeDb.createTables();
+            System.out.println("Created database: " + dbFileOperations.getDbDirectoryPath());
+        } else {
+            System.out.println("WARNING: Test didn't create database: " + dbFileOperations.getDbDirectoryPath());
+            initializeDb.clearTables();
+        }
+    }
 
     @Before
     public void setUp() throws SQLException {
-        final XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
-        final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
-        chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
-        initializeDb = new InitializeDb(dataSourceFactory.getDataSource(), configuration);
-        final InitializeDb.Feedback createTables = initializeDb.createTables();
-        if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
-            initializeDb.clearTables();
-        }
-        presenter = new ConsolePresenter();
+        initializeDb.clearTables();
     }
 
     @After
@@ -66,7 +77,7 @@ public class ConsolePresenterTest {
         assertThat(line2).isNotNull();
         assertThat(line2.getTag()).isEqualTo("work2");
 
-        presenter.displayDurationOfNRecord(last3Lines);
+        presenter.calculateDurations(last3Lines);
 
         System.out.println(line2);
         chronicleDao.deleteRecord(line0);
@@ -88,13 +99,13 @@ public class ConsolePresenterTest {
             initializeDb.clearTables();
         }
         thrown.expect(NoRecordsInPoolException.class);
-        presenter.displayDurationOfNRecord(chronicleDao.findLastNRecordsDownwards(5));
+        presenter.calculateDurations(chronicleDao.findLastNRecordsDownwards(5));
     }
 
     @Test
     public void testThatItOrdersRecentSummative() throws NoRecordsInPoolException, SQLException, UninitialisedTablesException {
         thrown.expect(NoRecordsInPoolException.class);
-        final Map<String, Duration> sums = presenter.displayDurationSummativePerTag(chronicleDao.findAllRecords());
+        presenter.calculateDurations(chronicleDao.findAllRecords());
     }
 
     @Test
@@ -134,7 +145,7 @@ public class ConsolePresenterTest {
         assertThat(line2).isNotNull();
         assertThat(line2.getTag()).isEqualTo("work2");
 
-        presenter.displayDurationOfNRecord(last3Lines);
+        presenter.calculateDurations(last3Lines);
 
         System.out.println(line2);
         chronicleDao.deleteRecord(line0);

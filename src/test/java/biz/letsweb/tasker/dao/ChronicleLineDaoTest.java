@@ -8,6 +8,7 @@ import biz.letsweb.tasker.db.DataSourceFactory;
 import biz.letsweb.tasker.db.InitializeDb;
 import biz.letsweb.tasker.chronicle.dao.ChronicleLineDao;
 import biz.letsweb.tasker.chronicle.model.ChronicleLine;
+import biz.letsweb.tasker.db.DbFileOperations;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
@@ -17,6 +18,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,29 +36,35 @@ public class ChronicleLineDaoTest {
 
     public static final Logger log = LoggerFactory.getLogger(ChronicleLineDaoTest.class);
 
-    private ChronicleLineDao chronicleDao;
-    private InitializeDb initializeDb;
-    private DataSource ds;
+    private static ChronicleLineDao chronicleDao;
+    private static InitializeDb initializeDb;
+    private static DbFileOperations dbFileOperations;
+
+    @BeforeClass
+    public static void setUpClass() throws SQLException {
+        final ConfigurationProvider provider = new ConfigurationProvider("src/test/resources/configuration.xml");
+        dbFileOperations = DbFileOperations.getInstance(provider.getXMLConfiguration());
+        final DataSourceFactory factory = new DataSourceFactory(provider.getXMLConfiguration());
+        initializeDb = new InitializeDb(factory.getDataSource(), provider.getXMLConfiguration());
+        chronicleDao = new ChronicleLineDao(factory.getDataSource());
+
+        if (!dbFileOperations.dbDirectoryExists()) {
+            System.out.println("Before creating database: " + dbFileOperations.getDbDirectoryPath());
+            initializeDb.createTables();
+            System.out.println("Created database: " + dbFileOperations.getDbDirectoryPath());
+        } else {
+            System.out.println("WARNING: Test didn't create database: " + dbFileOperations.getDbDirectoryPath());
+            initializeDb.clearTables();
+        }
+    }
 
     @Before
-    public void setUp() throws UninitialisedTablesException, SQLException {
-        XMLConfiguration configuration = new ConfigurationProvider("src/test/resources/configuration.xml").getXMLConfiguration();
-        final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
-        ds = dataSourceFactory.getDataSource();
-        chronicleDao = new ChronicleLineDao(ds);
-        setupDatabase(dataSourceFactory.getDataSource(), configuration);
+    public void setUp() throws SQLException {
+        initializeDb.clearTables();
     }
 
     @After
     public void tearDown() throws SQLException {
-    }
-
-    private void setupDatabase(DataSource ds, XMLConfiguration configuration) throws UninitialisedTablesException, SQLException {
-        initializeDb = new InitializeDb(ds, configuration);
-        final InitializeDb.Feedback createTables = initializeDb.createTables();
-        if (createTables == InitializeDb.Feedback.TABLES_EXISTED) {
-            initializeDb.clearTables();
-        }
     }
 
     @Test

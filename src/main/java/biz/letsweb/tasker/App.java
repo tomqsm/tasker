@@ -5,8 +5,9 @@ import biz.letsweb.tasker.db.DataSourceFactory;
 import biz.letsweb.tasker.chronicle.dao.ChronicleLineDao;
 import biz.letsweb.tasker.chronicle.model.ChronicleLine;
 import biz.letsweb.tasker.db.InitializeDb;
+import json.Jsoner;
 import biz.letsweb.tasker.templating.Templating;
-import biz.letsweb.tasker.timing.Calculator;
+import biz.letsweb.tasker.timing.DurationsCalculator;
 import freemarker.template.TemplateException;
 import java.io.IOException;
 import java.util.List;
@@ -48,7 +49,6 @@ public class App {
         } catch (ParseException ex) {
             log.error("Error while parsing options for the command line arguments. ", ex);
         }
-        
         final ChronicleLineDao chronicleLineDao = new ChronicleLineDao(dataSource);
         ChronicleLine currentChronicle = new ChronicleLine();
         boolean recordsInDb = false;
@@ -78,7 +78,7 @@ public class App {
         }
         if (recordsInDb) {
             try {
-                final Calculator calculator = new Calculator();
+                final DurationsCalculator calculator = new DurationsCalculator();
                 final List<ChronicleLine> lines = calculator.calculateDurations(chronicleLineDao.findTodaysRecords());
                 final List<ChronicleLine> namingRecords = chronicleLineDao.findLastNNamingRecordsDownwards(3);
                 final Templating templating = new Templating();

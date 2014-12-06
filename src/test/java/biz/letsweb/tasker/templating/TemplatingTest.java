@@ -5,7 +5,7 @@ import biz.letsweb.tasker.db.DataSourceFactory;
 import biz.letsweb.tasker.db.InitializeDb;
 import biz.letsweb.tasker.chronicle.dao.ChronicleLineDao;
 import biz.letsweb.tasker.chronicle.model.ChronicleLine;
-import biz.letsweb.tasker.timing.Calculator;
+import biz.letsweb.tasker.timing.DurationsCalculator;
 import freemarker.template.Configuration;
 import freemarker.template.ObjectWrapper;
 import freemarker.template.Template;
@@ -40,7 +40,7 @@ public class TemplatingTest {
     private InitializeDb initializeDb;
     private ChronicleLineDao chronicleDao;
     private XMLConfiguration configuration;
-    private Calculator calculator;
+    private DurationsCalculator calculator;
 
     public TemplatingTest() {
     }
@@ -51,7 +51,7 @@ public class TemplatingTest {
         final DataSourceFactory dataSourceFactory = new DataSourceFactory(configuration);
         chronicleDao = new ChronicleLineDao(dataSourceFactory.getDataSource());
         setupDatabase(dataSourceFactory.getDataSource());
-        calculator = new Calculator();
+        calculator = new DurationsCalculator();
     }
 
     @After
